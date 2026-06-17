@@ -347,6 +347,20 @@ const UI_STRINGS={
     about2:'Pomodoro är en metod för tidshantering med fokuserade arbetspass och korta pauser.',
     about3:'Futsudoro är en tåg-inspirerad pomodoro-timer för djupt arbete med lägena Chronos (strikt) och Kairos (flödesvänligt).',
     about4:'Skapad med ❤️ + 🍀 av ishiroca + {anhdres}'
+  },
+  pt:{
+    start:'Iniciar', stop:'Pausar', paused:'Em pausa', next:'Próximo', resume:'Retomar', reset:'Reiniciar',
+    tabStats:'Registro', tabTrip:'Viagem', tabSettings:'Ajustes', tabAbout:'Sobre',
+    travelLog:'Registro', stops:'Paradas', today:'Hoje', allTime:'Total', min:'min',
+    tripConfig:'Configuração da viagem', work:'Trabalho (min)', break:'Pausa (min)', longRest:'Pausa longa (min)',
+    systemSettings:'Configurações do sistema', mode:'Modo', notifications:'Notificações', theme:'Tema', language:'Idioma',
+    notifOn:'SIM', notifOff:'NÃO',
+    light:'Claro', dark:'Escuro',
+    tripDuration:'Tempo de viagem até o destino: {duration}',
+    about1:'Um trem futsū (普通) no Japão é um serviço local que para em todas as estações da linha.',
+    about2:'Pomodoro é um método de gestão de tempo baseado em sessões de trabalho focado e pausas curtas.',
+    about3:'Futsudoro é um temporizador pomodoro inspirado em trens para trabalho profundo, com modos Chronos (rígido) e Kairos (fluxo).',
+    about4:'Feito com ❤️ + 🍀 por ishiroca + {anhdres}'
   }
 };
 
@@ -438,6 +452,7 @@ function detectLocale(){
   if(lang.startsWith('hi')) return 'hi';
   if(lang.startsWith('fr')) return 'fr';
   if(lang.startsWith('sv')) return 'sv';
+  if(lang.startsWith('pt')) return 'pt';
   return 'ja';
 }
 
