@@ -232,7 +232,7 @@ const LINES={
 
 let currentLine='yamanote';
 let cfg={work:25,rest:5,journeys:4,longRest:35},timeLeft=cfg.work*60,running=false,ticker=null,clockTicker=null,currentJourney=0,phase='work',hasStarted=false,audioCtx=null,notifEnabled=false,isDark=false,timeMode='chronos',overtime=false,overtimeSeconds=0;
-let stats={today:0,total:0,lastDate:new Date().toDateString()};
+let stats={today:0,total:0,lastDate:new Date().toDateString(),history:[]};
 let uiLocale='ja';
 
 const UI_STRINGS={
@@ -536,9 +536,10 @@ document.addEventListener('click',(e)=>{
   if(!e.target.closest('.line-selector'))lineDropdown.classList.remove('open');
 });
 
-function loadStats(){let s=localStorage.getItem('futsuStats');if(s){stats=JSON.parse(s);if(stats.lastDate!==new Date().toDateString()){stats.today=0;stats.lastDate=new Date().toDateString()}}updStatsUI()}
+function loadStats(){let s=localStorage.getItem('futsuStats');if(s){stats=JSON.parse(s);const todayKey=new Date().toDateString();if(stats.lastDate!==todayKey){if(!stats.history)stats.history=[];if(stats.today>0){stats.history.push({date:stats.lastDate,minutes:stats.today});if(stats.history.length>30)stats.history=stats.history.slice(-30)}stats.today=0;stats.lastDate=todayKey}}if(!stats.history)stats.history=[];updStatsUI()}
 function saveStats(){localStorage.setItem('futsuStats',JSON.stringify(stats))}
-function updStatsUI(){document.getElementById('stToday').textContent=stats.today;document.getElementById('stTotal').textContent=stats.total;document.getElementById('curJ').textContent=Math.min(currentJourney+1,cfg.journeys);document.getElementById('totJ').textContent=cfg.journeys}
+function updStatsUI(){document.getElementById('stToday').textContent=stats.today;document.getElementById('stTotal').textContent=stats.total;document.getElementById('curJ').textContent=Math.min(currentJourney+1,cfg.journeys);document.getElementById('totJ').textContent=cfg.journeys;renderSparkline()}
+function renderSparkline(){const svg=document.getElementById('statsSparkline');if(!svg||!stats.history)return;const days=[];const today=new Date();for(let i=13;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const key=d.toDateString();const entry=stats.history.find(h=>h.date===key);days.push({date:key,minutes:entry?entry.minutes:0,isToday:i===0})}const maxMin=Math.max(...days.map(d=>d.minutes),1);const barWidth=8;const gap=2;const padTop=3;const padBottom=3;const innerH=32-padTop-padBottom;let bars='';days.forEach((d,i)=>{const h=Math.max((d.minutes/maxMin)*innerH,d.minutes>0?1:0);const x=i*(barWidth+gap);const y=32-padBottom-h;const fill=d.isToday?'var(--green)':(d.minutes>0?'var(--green)':'var(--line)');const opacity=d.isToday?1:(d.minutes>0?0.7:1);bars+=`<rect x="${x}" y="${y}" width="${barWidth}" height="${h}" fill="${fill}" opacity="${opacity}" rx="1"/>`});svg.innerHTML=bars}
 function addWork(m){stats.today+=m;stats.total+=m;saveStats();updStatsUI()}
 function refreshThemeButton(){
   const btn=document.getElementById('themeBtn');
