@@ -1,5 +1,9 @@
 # Futsudoro 🚃 + 🍅
 
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
+[![Live](https://img.shields.io/badge/live-futsudoro.app-orange.svg)](https://futsudoro.app)
+[![Made with ❤️ + 🍀](https://img.shields.io/badge/made_with-%E2%9D%A4%EF%B8%8F%20%2B%20%F0%9F%8D%80-ff69b4.svg)](#credits)
+
 A train-inspired Pomodoro timer for deep work, with two timing modes:
 
 - **Chronos** — strict Pomodoro (configurable work / break / long break).
