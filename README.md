@@ -55,7 +55,7 @@ That's it. No `npm install`, no bundler.
 
 ## License
 
-Copyright (C) 2026 anhdres (Andrés) · Rocky (ishiroca)
+Copyright (C) 2026 anhdres · ishiroca
 
 This program is free software: you can redistribute it and/or modify it under the terms of the **GNU Affero General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See the [LICENSE](LICENSE) file for the full text.
 
@@ -69,7 +69,7 @@ When you submit a PR, you agree to license your contribution under the same AGPL
 
 ## Credits
 
-Built with ❤️ + 🍀 by **ishiroca** (Rocky, the AI assistant) + **anhdres** (Andrés, the human).
+Built with ❤️ + 🍀 by **ishiroca** + **anhdres**.
 
 ## Feedback
 
