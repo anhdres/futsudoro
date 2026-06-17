@@ -248,7 +248,7 @@ const UI_STRINGS={
     about1:'日本の普通列車（futsū・普通）は、路線上のすべての駅に停車する各駅停車の列車です。',
     about2:'ポモドーロは、集中作業と短い休憩を繰り返す時間管理メソッドです。',
     about3:'Futsudoro は、列車の旅をモチーフにした深い集中のためのポモドーロタイマーです。Chronos（厳密）と Kairos（フロー重視）の2つのモードがあります。',
-    about4:'❤️ + 🍀 with ishirock + {anhdres}'
+    about4:'❤️ + 🍀 with ishiroca + {anhdres}'
   },
   en:{
     start:'Start', stop:'Pause', paused:'Paused', next:'Next', resume:'Resume', reset:'Reset',
@@ -262,7 +262,7 @@ const UI_STRINGS={
     about1:'A futsū (普通) train in Japan is a local service that stops at every station on its route.',
     about2:'Pomodoro is a time management method based on focused work sessions and short breaks.',
     about3:'Futsudoro is a train pomodoro timer for deep work, with Chronos (strict timing) and Kairos (flow-friendly) modes.',
-    about4:'Made with ❤️ + 🍀 by ishirock + {anhdres}'
+    about4:'Made with ❤️ + 🍀 by ishiroca + {anhdres}'
   },
   es:{
     start:'Iniciar', stop:'Pausar', paused:'En pausa', next:'Siguiente', resume:'Retomar', reset:'Reiniciar',
@@ -276,7 +276,7 @@ const UI_STRINGS={
     about1:'Un tren futsū (普通) en Japón es un servicio local que se detiene en todas las estaciones del recorrido.',
     about2:'Pomodoro es un método de gestión del tiempo basado en sesiones de trabajo enfocadas y descansos cortos.',
     about3:'Futsudoro es un temporizador pomodoro inspirado en trenes para trabajo profundo, con modos Chronos (estricto) y Kairos (fluido).',
-    about4:'Hecho con ❤️ + 🍀 por ishirock + {anhdres}'
+    about4:'Hecho con ❤️ + 🍀 por ishiroca + {anhdres}'
   },
   it:{
     start:'Avvia', stop:'Pausa', paused:'In pausa', next:'Avanti', resume:'Riprendi', reset:'Reimposta',
@@ -290,7 +290,7 @@ const UI_STRINGS={
     about1:'Un treno futsū (普通) in Giappone è un servizio locale che si ferma in tutte le stazioni della linea.',
     about2:'Pomodoro è un metodo di gestione del tempo basato su sessioni di lavoro concentrato e brevi pause.',
     about3:'Futsudoro è un timer pomodoro ispirato ai treni per il lavoro profondo, con modalità Chronos (rigida) e Kairos (fluida).',
-    about4:'Creato con ❤️ + 🍀 da ishirock + {anhdres}'
+    about4:'Creato con ❤️ + 🍀 da ishiroca + {anhdres}'
   },
   de:{
     start:'Los', stop:'Pause', paused:'Pausiert', next:'Weiter', resume:'Fortsetzen', reset:'Zurücksetzen',
@@ -304,7 +304,7 @@ const UI_STRINGS={
     about1:'Ein futsū-Zug (普通) in Japan ist ein Nahverkehrszug, der an jeder Station hält.',
     about2:'Pomodoro ist eine Zeitmanagement-Methode mit fokussierten Arbeitsphasen und kurzen Pausen.',
     about3:'Futsudoro ist ein zug-inspirierter Pomodoro-Timer für Deep Work mit Chronos- (streng) und Kairos-Modus (flow-freundlich).',
-    about4:'Mit ❤️ + 🍀 von ishirock + {anhdres}'
+    about4:'Mit ❤️ + 🍀 von ishiroca + {anhdres}'
   },
   hi:{
     start:'शुरू', stop:'रोकें', paused:'रुका हुआ', next:'अगला', resume:'जारी रखें', reset:'रीसेट',
@@ -318,7 +318,7 @@ const UI_STRINGS={
     about1:'जापान में futsū (普通) ट्रेन एक लोकल सेवा है जो अपने मार्ग के हर स्टेशन पर रुकती है।',
     about2:'Pomodoro समय प्रबंधन की एक विधि है जिसमें केंद्रित काम और छोटे ब्रेक शामिल होते हैं।',
     about3:'Futsudoro एक ट्रेन-प्रेरित Pomodoro टाइमर है, गहरे काम के लिए, जिसमें Chronos (सख्त) और Kairos (लचीला) मोड हैं।',
-    about4:'❤️ + 🍀 के साथ ishirock + {anhdres} द्वारा बनाया गया'
+    about4:'❤️ + 🍀 के साथ ishiroca + {anhdres} द्वारा बनाया गया'
   },
   fr:{
     start:'Démarrer', stop:'Pause', paused:'En pause', next:'Suivant', resume:'Reprendre', reset:'Réinitialiser',
@@ -332,7 +332,7 @@ const UI_STRINGS={
     about1:'Un train futsū (普通) au Japon est un service local qui s’arrête à chaque station de la ligne.',
     about2:'Pomodoro est une méthode de gestion du temps basée sur des sessions de travail concentré et de courtes pauses.',
     about3:'Futsudoro est un minuteur pomodoro inspiré des trains pour le travail profond, avec les modes Chronos (strict) et Kairos (fluide).',
-    about4:'Créé avec ❤️ + 🍀 par ishirock + {anhdres}'
+    about4:'Créé avec ❤️ + 🍀 par ishiroca + {anhdres}'
   },
   sv:{
     start:'Starta', stop:'Pausa', paused:'Pausad', next:'Nästa', resume:'Fortsätt', reset:'Återställ',
@@ -346,7 +346,7 @@ const UI_STRINGS={
     about1:'Ett futsū-tåg (普通) i Japan är en lokaltågslinje som stannar vid varje station.',
     about2:'Pomodoro är en metod för tidshantering med fokuserade arbetspass och korta pauser.',
     about3:'Futsudoro är en tåg-inspirerad pomodoro-timer för djupt arbete med lägena Chronos (strikt) och Kairos (flödesvänligt).',
-    about4:'Skapad med ❤️ + 🍀 av ishirock + {anhdres}'
+    about4:'Skapad med ❤️ + 🍀 av ishiroca + {anhdres}'
   }
 };
 

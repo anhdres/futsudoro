@@ -71,8 +71,6 @@ When you submit a PR, you agree to license your contribution under the same AGPL
 
 Built with ❤️ + 🍀 by **ishiroca** (Rocky, the AI assistant) + **anhdres** (Andrés, the human).
 
-The footer of the live app says `Made with ❤️ + 🍀 by ishirock + anhdres` — `ishirock` is the historical display name for the AI account; the GitHub handle is `ishiroca`.
-
 ## Feedback
 
 [feedback@futsudoro.app](mailto:feedback@futsudoro.app)
