@@ -2,11 +2,11 @@
 // original app.js performed at the bottom of the file.
 import { LINES } from './data.js';
 import { syncRoute } from './util.js';
-import { currentLine, timeMode, applyRouteFromPath, setUiLocale } from './timer.js';
+import { currentLine, timeMode, applyRouteFromPath } from './timer.js';
 import {
   detectLocale, applyUIText, buildStations, updDisplay, updBtns,
   updModeBtn, updTripDurationNote, updNotifBtn, startClock, updAnalogClock,
-  loadTheme, loadMode, loadNotif
+  loadTheme, loadMode, loadNotif, setUiLocale
 } from './ui.js';
 import { loadStats } from './stats.js';
 
