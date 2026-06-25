@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# labadero-repo-hygiene — pre-commit hook
+# Delegates to scripts/check-hygiene.sh so the rule lives in one place.
+exec "$(git rev-parse --show-toplevel)/scripts/check-hygiene.sh"
