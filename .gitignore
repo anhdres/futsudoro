@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+dist/
+build/
+.vercel/
+*.log
+
+# Public repo tree — kept out of the working repo, rebuilt for pushes
+clean-app/
+
+# Exploratory audio takes (not app assets yet, prevents accidental commits)
+assets/sound/

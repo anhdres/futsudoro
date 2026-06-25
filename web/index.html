@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Recovered from https://www.futsudoro.app/ on 2026-05-10 and normalized into /src files. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Futsudoro — Train Pomodoro Timer</title>
+<meta name="description" content="Futsudoro is a train-inspired Pomodoro timer web app for deep work, with Chronos (strict) and Kairos (flow-friendly) modes.">
+<meta name="keywords" content="futsudoro, pomodoro timer, train-inspired productivity app, chronos kairos timer, focus timer, deep work web app, productivity web app">
+<meta name="application-name" content="Futsudoro">
+<meta name="apple-mobile-web-app-title" content="Futsudoro">
+<meta name="author" content="ishiroca + anhdres">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://www.futsudoro.app/">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#000000">
+<link rel="alternate" hreflang="x-default" href="https://www.futsudoro.app/">
+<link rel="alternate" hreflang="en" href="https://www.futsudoro.app/about.html">
+<link rel="alternate" hreflang="zh" href="https://www.futsudoro.app/about-zh.html">
+<link rel="alternate" hreflang="ja" href="https://www.futsudoro.app/about-ja.html">
+<link rel="alternate" hreflang="hi" href="https://www.futsudoro.app/about-hi.html">
+<link rel="alternate" hreflang="es" href="https://www.futsudoro.app/about-es.html">
+<link rel="alternate" hreflang="de" href="https://www.futsudoro.app/about-de.html">
+<link rel="alternate" hreflang="fr" href="https://www.futsudoro.app/about-fr.html">
+<link rel="alternate" hreflang="it" href="https://www.futsudoro.app/about-it.html">
+<link rel="alternate" hreflang="pt" href="https://www.futsudoro.app/about-pt.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Futsudoro">
+<meta property="og:title" content="Futsudoro — Train Pomodoro Timer for Deep Work">
+<meta property="og:description" content="A railway-themed focus timer with Chronos (strict) and Kairos (flow-friendly) modes.">
+<meta property="og:url" content="https://www.futsudoro.app/">
+<meta property="og:image" content="https://www.futsudoro.app/icons/icon-512.png">
+<meta property="og:image:alt" content="Futsudoro train icon">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Futsudoro — Train Pomodoro Timer for Deep Work">
+<meta name="twitter:description" content="Focus station by station. Chronos for strict timing, Kairos for flow-state work.">
+<meta name="twitter:image" content="https://www.futsudoro.app/icons/icon-512.png">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<script>
+(function(){
+  const p=window.location.pathname;
+  const legacy=/(green-train|%E7%BB%BF%E7%9A%AE%E8%BD%A6|绿皮车)/i;
+  if(!legacy.test(p)) return;
+  const modeMatch=p.match(/\/(chronos|kairos)(?:\/)?$/i);
+  const mode=(modeMatch&&modeMatch[1].toLowerCase())||'chronos';
+  window.location.replace(`/lupiche/${mode}${window.location.search}${window.location.hash}`);
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Futsudoro",
+  "alternateName": "Futsudoro App",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Web",
+  "url": "https://www.futsudoro.app/",
+  "image": "https://www.futsudoro.app/icons/icon-512.png",
+  "description": "Futsudoro is a train-inspired Pomodoro timer web app for deep work, with Chronos and Kairos modes.",
+  "keywords": "futsudoro, pomodoro timer, focus timer, deep work app, train-inspired productivity",
+  "isAccessibleForFree": true,
+  "inLanguage": ["en", "es", "ja", "de", "fr", "it", "hi", "zh"],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "anhdres"
+  }
+}
+</script>
+<link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+<div class="sign-panel">
+  <div class="line-header">
+    <div class="line-selector">
+      <button class="line-name-btn" id="lineBtn">
+        <div>
+          <div class="line-name-jp" id="lineNameJp">山手線</div>
+          <div class="line-name-en" id="lineNameEn">Yamanote Line</div>
+        </div>
+        <span class="dropdown-arrow">▼</span>
+      </button>
+      <div class="line-dropdown" id="lineDropdown">
+        <div class="line-option selected" data-line="yamanote">
+          <div class="line-color-badge" style="background:#9ACD32"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">山手線</div>
+            <div class="line-option-sub">Yamanote — Tokyo</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="urquiza">
+          <div class="line-color-badge" style="background:#FFD200"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Urquiza</div>
+            <div class="line-option-sub">Buenos Aires</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="nagareyama">
+          <div class="line-color-badge" style="background:#8B0000"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">流山電鉄</div>
+            <div class="line-option-sub">Nagareyama — Chiba</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="ter">
+          <div class="line-color-badge" style="background:#003CA6"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Centre</div>
+            <div class="line-option-sub">France</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="schwarzwaldbahn">
+          <div class="line-color-badge" style="background:#DB0018"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Schwarzwald</div>
+            <div class="line-option-sub">Deutschland</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="regionale">
+          <div class="line-color-badge" style="background:#008C45"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Regionale</div>
+            <div class="line-option-sub">Italia</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="donau">
+          <div class="line-color-badge" style="background:#E2001A"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Donau</div>
+            <div class="line-option-sub">Österreich</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="sodra">
+          <div class="line-color-badge" style="background:#1C1C1C"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Södra</div>
+            <div class="line-option-sub">Sverige</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="quebrada">
+          <div class="line-color-badge" style="background:#F5F5F5"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Quebrada</div>
+            <div class="line-option-sub">Jujuy</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="lupiche">
+          <div class="line-color-badge" style="background:#2F5D3A"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">绿皮车</div>
+            <div class="line-option-sub">China</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="konkan">
+          <div class="line-color-badge" style="background:#1F4E79"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">कोंकण</div>
+            <div class="line-option-sub">India</div>
+          </div>
+        </div>
+        <div class="line-option" data-line="commuter">
+          <div class="line-color-badge" style="background:#9a38a1"></div>
+          <div class="line-info-text">
+            <div class="line-option-name">Commuter</div>
+            <div class="line-option-sub">Massachusetts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="train-indicator green" id="trainIndicator">
+      <div class="train-windows">
+        <div class="window-pair"><div class="train-window"></div><div class="train-window"></div></div>
+        <div class="window-pair door"><div class="train-window"></div><div class="train-window"></div></div>
+        <div class="window-pair"><div class="train-window"></div><div class="train-window"></div></div>
+        <div class="window-pair door"><div class="train-window"></div><div class="train-window"></div></div>
+        <div class="window-pair"><div class="train-window"></div><div class="train-window"></div></div>
+      </div>
+      <div class="train-wheels-set front"><div class="train-wheel"></div><div class="train-wheel"></div></div>
+      <div class="train-wheels-set back"><div class="train-wheel"></div><div class="train-wheel"></div></div>
+    </div>
+  </div>
+  <div class="status-wrap">
+    <div class="status-row">
+      <span class="status-icon status-station" id="statusIcon">subway_walk</span>
+      <div class="status-text status-station" id="statusText">At Station</div>
+    </div>
+  </div>
+  <div class="clock-section">
+    <div class="clock-row">
+      <div class="timer-main" id="timer">20:00</div>
+      <div class="analog-clock" id="analogClock">
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-marker"></div>
+        <div class="clock-hand hour" id="hourHand"></div>
+        <div class="clock-hand minute" id="minuteHand"></div>
+        <div class="clock-hand second" id="secondHand"></div>
+      </div>
+    </div>
+  </div>
+  <div class="station-section">
+    <div class="station-track" id="track">
+      <div class="track-line"><div class="track-progress" id="trackProgress"></div></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="ctrl-btn main start" id="startBtn"><span class="ctrl-icon">play_arrow</span><span id="startBtnLabel">発車</span></button>
+    <button class="ctrl-btn reset-mini" id="resetBtn"><span class="ctrl-icon">restart_alt</span><span id="resetBtnLabel">終点</span></button>
+  </div>
+  <div class="footer">
+    <div class="toggle-bar">
+      <button class="toggle-btn" id="statsBtn"><span class="tab-icon">travel_luggage_and_bags</span><span class="tab-label" id="tabStats">統計</span></button>
+      <button class="toggle-btn" id="tripBtn"><span class="tab-icon">timer</span><span class="tab-label" id="tabTrip">行程</span></button>
+      <button class="toggle-btn" id="settingsBtn"><span class="tab-icon">tune</span><span class="tab-label" id="tabSettings">設定</span></button>
+      <button class="toggle-btn" id="aboutBtn"><span class="tab-icon">help</span><span class="tab-label" id="tabAbout">概要</span></button>
+    </div>
+    <div class="info-panel" id="statsPanel">
+      <div class="panel-title" id="titleTravelLog">Travel Log</div>
+      <div class="info-row"><span id="labelStops">Stops</span><b class="stops-value"><span id="curJ">1</span>/<span id="totJ">4</span></b></div>
+      <div class="info-row"><span id="labelToday">Today</span><b><span id="stToday">0</span> <span id="labelMinA">min</span></b></div>
+      <div class="info-row" style="display:block;padding-top:6px">
+        <svg id="statsSparkline" viewBox="0 0 140 32" width="100%" height="32" preserveAspectRatio="xMidYMid meet" style="display:block"></svg>
+      </div>
+      <div class="info-row"><span id="labelAllTime">All Time</span><b><span id="stTotal">0</span> <span id="labelMinB">min</span></b></div>
+    </div>
+    <div class="info-panel" id="tripPanel">
+      <div class="panel-title" id="titleTripConfig">Trip Configuration</div>
+      <div class="setting-row"><label id="labelStopsCfg">Stops</label><input type="number" id="inJourneys" value="4" min="2" max="5"></div>
+      <div class="setting-row"><label id="labelWork">Work (min)</label><input type="number" id="inWork" value="25" min="1" max="90"></div>
+      <div class="setting-row"><label id="labelBreak">Break (min)</label><input type="number" id="inRest" value="5" min="1" max="30"></div>
+      <div class="trip-duration-note" id="tripDurationNote">Travel time to destination: 1h 55m</div>
+      <div class="setting-row"><label id="labelLongRest">Rest (min)</label><input type="number" id="inLong" value="35" min="10" max="60"></div>
+    </div>
+    <div class="info-panel" id="settingsPanel">
+      <div class="panel-title" id="titleSettings">System Settings</div>
+      <div class="setting-row"><label id="labelMode">Mode</label><button class="sys-btn" id="modeBtn">Chronos</button></div>
+      <div class="setting-row"><label id="labelNotifications">Notifications</label><button class="sys-btn" id="notifBtn">OFF</button></div>
+      <div class="setting-row"><label id="labelTheme">Theme</label><button class="sys-btn" id="themeBtn">Light</button></div>
+      <div class="setting-row"><label id="labelLanguage">Language</label>
+        <select id="langSelect" class="sys-btn" style="padding:7px 10px;">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="it">Italiano</option>
+          <option value="de">Deutsch</option>
+          <option value="hi">हिन्दी</option>
+          <option value="fr">Français</option>
+          <option value="sv">Svenska</option>
+          <option value="pt">Português</option>
+        </select>
+      </div>
+    </div>
+    <div class="info-panel" id="aboutPanel">
+      <div class="panel-title">🚃 + 🍅</div>
+      <div class="info-row" id="aboutText1" style="display:block; margin-bottom:10px; line-height:1.45; font-size:12px; font-weight:600;">
+        A futsū (普通) train in Japan is a local service that stops at every station on its route.
+      </div>
+      <div class="info-row" id="aboutText2" style="display:block; margin-bottom:10px; line-height:1.45; font-size:12px; font-weight:600;">
+        Pomodoro is a time management method based on focused work sessions and short breaks.
+      </div>
+      <div class="info-row" id="aboutText3" style="display:block; margin-bottom:10px; line-height:1.45; font-size:12px; font-weight:600;">
+        Futsudoro is a train pomodoro timer for deep work, with Chronos (strict timing) and Kairos (flow-friendly) modes.
+      </div>
+      <div class="info-row" id="aboutText4" style="display:block; line-height:1.45; font-size:12px; font-weight:600;">
+        Made with ❤️ + 🍀 by ishiroca + anhdres
+      </div>
+      <div class="info-row" style="display:block; line-height:1.45; font-size:12px; font-weight:600;">
+        <a href="mailto:feedback@futsudoro.app">feedback@futsudoro.app</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="/src/main.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
