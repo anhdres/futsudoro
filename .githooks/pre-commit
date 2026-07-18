@@ -1,4 +1,12 @@
-#!/usr/bin/env bash
-# labadero-repo-hygiene — pre-commit hook
-# Delegates to scripts/check-hygiene.sh so the rule lives in one place.
-exec "$(git rev-parse --show-toplevel)/scripts/check-hygiene.sh"
+#!/bin/bash
+# Pre-commit hook for futsudoro.
+# 1. Bump build version (auto-update BUILD SHA + date in data.js)
+# 2. Run repo hygiene check (block if violated)
+
+cd "$(dirname "$0")/.."
+
+# Bump version first (this may modify web/src/data.js and stage it)
+./scripts/bump-version.sh
+
+# Then run hygiene check
+exec ./scripts/check-hygiene.sh

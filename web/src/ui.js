@@ -1,6 +1,6 @@
 // All DOM references, render functions, event listeners.
 // Owns: uiLocale, notifEnabled, isDark. Reads timer state via live bindings.
-import { LINES, UI_STRINGS } from './data.js';
+import { LINES, UI_STRINGS, VERSION, BUILD, BUILD_DATE } from './data.js';
 import {
   t as tUtil,
   normalizeLineKey,
@@ -116,6 +116,7 @@ export function applyUIText(){
   updNotifBtn();
   updTripDurationNote();
   updBtns();
+  updVersionInfo();
   // Actualizar <html lang> y <title> para a11y + SEO en el idioma activo.
   document.documentElement.lang = uiLocale;
   document.title = 'Futsudoro — ' + t('travelLog');
@@ -377,6 +378,18 @@ export function togglePanel(id){
     document.getElementById(p).classList.toggle('open', isOpen);
     document.getElementById(btns[j]).classList.toggle('active', isOpen);
   });
+}
+
+export function updVersionInfo(){
+  const el = document.getElementById('versionInfo');
+  if(el){
+    // Formato compacto: vX.Y.Z · abc1234 · YYYY-MM-DD
+    el.textContent = `v${VERSION} · ${BUILD} · ${BUILD_DATE}`;
+  }
+  // Exponer global para inspección desde consola (`window.futsudoroVersion`).
+  if(typeof window !== 'undefined'){
+    window.futsudoroVersion = { VERSION, BUILD, BUILD_DATE };
+  }
 }
 
 export function startClock(){

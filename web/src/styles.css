@@ -149,6 +149,9 @@ body { background:#000; color:var(--black); font-family:'Noto Sans JP',sans-seri
 .sys-btn.on { background:var(--black); color:var(--white); }
 .info-panel a { color:var(--blue); font-weight:700; text-decoration:underline; }
 
+.version-info { font-family:'Courier New',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10px; color:var(--gray); opacity:0.65; text-align:center; padding-top:10px; margin-top:12px; border-top:1px dashed var(--line); letter-spacing:0.04em; user-select:all; -webkit-user-select:all; }
+.version-info:hover { opacity:0.9; }
+
 /* A11y: ocultar iconos decorativos de screen readers (los botones
    tienen label propio, los iconos son redundantes). */
 .ctrl-icon, .tab-icon, .status-icon, .dropdown-arrow { speak:none; }
