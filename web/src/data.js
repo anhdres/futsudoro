@@ -1,3 +1,11 @@
+// Version stamping for the UI ("Help" panel + window.futsudoroVersion).
+// VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
+// BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
+// BUILD_DATE: ISO date of the commit, also auto-updated.
+export const VERSION = '0.2.0';
+export const BUILD = 'a7f6335';
+export const BUILD_DATE = '2026-07-18';
+
 // Line configurations with JP + Latin station names
 export const LINES={
   yamanote:{
