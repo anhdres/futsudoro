@@ -1,8 +1,22 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:mode(chronos|kairos)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:line(yamanote|urquiza|nagareyama|ter|schwarzwaldbahn|regionale|donau|sodra|quebrada|lupiche|konkan|commuter)/:mode(chronos|kairos)?",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:line(yamanote|urquiza|nagareyama|ter|schwarzwaldbahn|regionale|donau|sodra|quebrada|lupiche|konkan|commuter)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:slug(green-train|%E7%BB%BF%E7%9A%AE%E8%BD%A6)/:mode(chronos|kairos)?",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "cleanUrls": false,
+  "trailingSlash": false
 }

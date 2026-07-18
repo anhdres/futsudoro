@@ -13,7 +13,9 @@ function tone(f, t, d){
   o.connect(g);
   g.connect(audioCtx.destination);
   o.frequency.value = f;
-  g.gain.setValueAtTime(0.1, t);
+  // Attack ramp: evita click/pop audible al inicio de cada nota.
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.1, t + 0.008);
   g.gain.exponentialRampToValueAtTime(0.001, t + d);
   o.start(t);
   o.stop(t + d + 0.05);

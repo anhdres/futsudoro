@@ -13,7 +13,7 @@ import {
   syncRoute
 } from './util.js';
 import { trackEvent, chimeGo } from './audio.js';
-import { updStatsUI } from './stats.js';
+import { updStatsUI, startRolloverChecker } from './stats.js';
 import {
   currentLine, timeMode, cfg, timeLeft, running, phase,
   hasStarted, overtime, overtimeSeconds, currentJourney, clockTicker,
@@ -27,18 +27,14 @@ export let uiLocale = 'ja';
 export let notifEnabled = false;
 export let isDark = false;
 
+// Cache de referencias a estaciones (se llena en buildStations, se consume en
+// updStations). Evita querySelectorAll cada tick.
+let stationEls = [];
+
 // Setters for UI state
-export function setUiLocale(next){
-  uiLocale = next;
-}
-
-export function setNotifEnabled(next){
-  notifEnabled = next;
-}
-
-export function setIsDark(next){
-  isDark = next;
-}
+export function setUiLocale(next){ uiLocale = next; }
+export function setNotifEnabled(next){ notifEnabled = next; }
+export function setIsDark(next){ isDark = next; }
 
 // Re-export t with current uiLocale bound for callers that don't want to
 // pass the locale explicitly.
@@ -61,6 +57,7 @@ const resetBtn = document.getElementById('resetBtn');
 const startIconEl = startBtn.querySelector('.ctrl-icon');
 const startLabelEl = startBtn.querySelector('span:last-child');
 const trackEl = document.getElementById('track');
+const lineOptions = document.querySelectorAll('.line-option');
 
 export function detectLocale(){
   const saved = localStorage.getItem('futsuUiLocale');
@@ -113,22 +110,33 @@ export function applyUIText(){
       '<a href="https://anhdres.com" target="_blank" rel="noopener noreferrer">anhdres</a>'
     );
   }
-  document.getElementById('langSelect').value = uiLocale;
+  const langSelect = document.getElementById('langSelect');
+  if(langSelect) langSelect.value = uiLocale;
   refreshThemeButton();
   updNotifBtn();
   updTripDurationNote();
   updBtns();
+  // Actualizar <html lang> y <title> para a11y + SEO en el idioma activo.
+  document.documentElement.lang = uiLocale;
+  document.title = 'Futsudoro — ' + t('travelLog');
 }
 
 export function setLocale(next){
   if(!UI_STRINGS[next]) return;
   setUiLocale(next);
-  localStorage.setItem('futsuUiLocale', next);
+  try { localStorage.setItem('futsuUiLocale', next); } catch(_e){}
   applyUIText();
 }
 
 export function selectLine(lineKey){
-  setCurrentLine(lineKey);
+  const next = normalizeLineKey(lineKey);
+  // Si hay un viaje en curso, pedimos confirmación para no perder progreso
+  // por un click accidental en el dropdown.
+  if(hasStarted && next !== currentLine){
+    const ok = window.confirm(t('confirmSwitchLine') || 'Switch line and reset the current session?');
+    if(!ok) return;
+  }
+  setCurrentLine(next);
   const line = LINES[currentLine];
   trackEvent('Line Changed', { line: currentLine });
   syncRoute(currentLine, timeMode);
@@ -137,45 +145,46 @@ export function selectLine(lineKey){
   // Update train color
   trainInd.className = 'train-indicator ' + line.color;
   // Update dropdown selection
-  document.querySelectorAll('.line-option').forEach(opt => {
+  lineOptions.forEach(opt => {
     opt.classList.toggle('selected', normalizeLineKey(opt.dataset.line) === currentLine);
   });
   lineDropdown.classList.remove('open');
+  lineBtn.setAttribute('aria-expanded', 'false');
   // Reset with new stations
   fullReset();
 }
 
 export function buildStations(){
   trackEl.querySelectorAll('.station').forEach(e => e.remove());
+  stationEls = [];
   const n = cfg.journeys + 1;
-  const stations = LINES[currentLine].stations;
+  const safeLine = LINES[normalizeLineKey(currentLine)] || LINES.yamanote;
+  const stations = safeLine.stations;
   stations.slice(0, n).forEach((st, i) => {
     const d = document.createElement('div');
     d.className = 'station';
     d.innerHTML = '<div class="station-dot"></div><div class="station-name"><span class="station-name-jp">' + st.jp + '</span>' + (st.en ? '<span class="station-name-en">' + st.en + '</span>' : '') + '</div>';
     trackEl.appendChild(d);
+    stationEls.push(d);
   });
 }
 
 export function updStations(){
-  const stations = trackEl.querySelectorAll('.station');
-  stations.forEach((el, i) => {
+  for(let i = 0; i < stationEls.length; i++){
+    const el = stationEls[i];
     el.classList.remove('active', 'done');
 
     if(!hasStarted){
       if(i === currentJourney) el.classList.add('active');
-      return;
+      continue;
     }
 
     if(i < currentJourney || (phase === 'work' && i === currentJourney)){
-      // Estaciones completadas: las que están atrás + la actual si estamos en viaje
       el.classList.add('done');
     } else if(i === currentJourney && phase !== 'work'){
-      // Estación actual solo cuando estamos parados (rest/longrest)
       el.classList.add('active');
     }
-    // Si i > currentJourney: estación futura (sin color)
-  });
+  }
 }
 
 export function updTrainState(){
@@ -208,11 +217,15 @@ export function updDisplay(){
     ? fmtOvertime(overtimeSeconds)
     : fmt(timeLeft);
   if(phase === 'work'){
-    tpEl.style.width = (totalProgCalc(cfg, timeLeft, currentJourney) * 100) + '%';
+    const pct = totalProgCalc(cfg, timeLeft, currentJourney) * 100;
+    tpEl.style.width = pct + '%';
+    tpEl.setAttribute('aria-valuenow', Math.round(pct));
   } else if(phase === 'longrest'){
     tpEl.style.width = '100%';
+    tpEl.setAttribute('aria-valuenow', '100');
   } else if(!hasStarted){
     tpEl.style.width = '0%';
+    tpEl.setAttribute('aria-valuenow', '0');
   }
   updTrainState();
 
@@ -281,10 +294,12 @@ export function refreshThemeButton(){
 }
 
 export function loadTheme(){
-  if(localStorage.getItem('futsuTheme') === 'dark'){
-    setIsDark(true);
-    document.body.classList.add('dark');
-  }
+  try {
+    if(localStorage.getItem('futsuTheme') === 'dark'){
+      setIsDark(true);
+      document.body.classList.add('dark');
+    }
+  } catch(_e){}
   refreshThemeButton();
 }
 
@@ -292,7 +307,7 @@ export function toggleTheme(){
   setIsDark(!isDark);
   document.body.classList.toggle('dark', isDark);
   refreshThemeButton();
-  localStorage.setItem('futsuTheme', isDark ? 'dark' : 'light');
+  try { localStorage.setItem('futsuTheme', isDark ? 'dark' : 'light'); } catch(_e){}
 }
 
 export function updModeBtn(){
@@ -302,14 +317,16 @@ export function updModeBtn(){
 }
 
 export function loadMode(){
-  const saved = localStorage.getItem('futsuTimeMode');
-  if(saved === 'kairos' || saved === 'chronos') setTimeMode(saved);
+  try {
+    const saved = localStorage.getItem('futsuTimeMode');
+    if(saved === 'kairos' || saved === 'chronos') setTimeMode(saved);
+  } catch(_e){}
   updModeBtn();
 }
 
 export function toggleMode(){
   setTimeMode(timeMode === 'chronos' ? 'kairos' : 'chronos');
-  localStorage.setItem('futsuTimeMode', timeMode);
+  try { localStorage.setItem('futsuTimeMode', timeMode); } catch(_e){}
   syncRoute(currentLine, timeMode);
   fullReset();
   updModeBtn();
@@ -322,8 +339,12 @@ export function updNotifBtn(){
 }
 
 export function loadNotif(){
-  if('Notification' in window && localStorage.getItem('futsuNotif') && Notification.permission === 'granted'){
-    setNotifEnabled(true);
+  if('Notification' in window){
+    try {
+      if(localStorage.getItem('futsuNotif') && Notification.permission === 'granted'){
+        setNotifEnabled(true);
+      }
+    } catch(_e){}
   }
 }
 
@@ -331,13 +352,15 @@ export async function toggleNotif(){
   if(!('Notification' in window)) return;
   if(notifEnabled){
     setNotifEnabled(false);
-    localStorage.removeItem('futsuNotif');
+    try { localStorage.removeItem('futsuNotif'); } catch(_e){}
     updNotifBtn();
     return;
   }
   const p = await Notification.requestPermission();
   setNotifEnabled(p === 'granted');
-  if(notifEnabled) localStorage.setItem('futsuNotif', '1');
+  if(notifEnabled){
+    try { localStorage.setItem('futsuNotif', '1'); } catch(_e){}
+  }
   updNotifBtn();
 }
 
@@ -359,6 +382,11 @@ export function togglePanel(id){
 export function startClock(){
   if(clockTicker) clearTimeout(clockTicker);
   const loop = () => {
+    // Pausar cuando la pestaña está oculta para no drenar batería.
+    if(document.hidden){
+      setClockTicker(null);
+      return;
+    }
     updAnalogClock();
     const delay = 1000 - (Date.now() % 1000);
     setClockTicker(setTimeout(loop, delay));
@@ -366,25 +394,80 @@ export function startClock(){
   loop();
 }
 
+// --- A11y / keyboard helpers para el dropdown de líneas ---
+
+function openLineDropdown(){
+  lineDropdown.classList.add('open');
+  lineBtn.setAttribute('aria-expanded', 'true');
+}
+function closeLineDropdown(){
+  lineDropdown.classList.remove('open');
+  lineBtn.setAttribute('aria-expanded', 'false');
+}
+function isLineDropdownOpen(){
+  return lineDropdown.classList.contains('open');
+}
+
 // Event listeners attached at module load
-lineBtn.onclick = () => lineDropdown.classList.toggle('open');
-document.querySelectorAll('.line-option').forEach(opt => {
-  opt.onclick = () => selectLine(opt.dataset.line);
+lineBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if(isLineDropdownOpen()) closeLineDropdown();
+  else openLineDropdown();
 });
+
+lineOptions.forEach((opt, idx) => {
+  opt.addEventListener('click', () => selectLine(opt.dataset.line));
+  // Soporte teclado: ArrowUp/ArrowDown mueve el foco entre opciones,
+  // Enter/Space selecciona, Escape cierra el dropdown.
+  opt.setAttribute('role', 'option');
+  opt.setAttribute('tabindex', '-1');
+  opt.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      selectLine(opt.dataset.line);
+      lineBtn.focus();
+    } else if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      const next = lineOptions[idx + 1] || lineOptions[0];
+      next.focus();
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      const prev = lineOptions[idx - 1] || lineOptions[lineOptions.length - 1];
+      prev.focus();
+    } else if(e.key === 'Escape'){
+      closeLineDropdown();
+      lineBtn.focus();
+    } else if(e.key === 'Home'){
+      e.preventDefault();
+      lineOptions[0].focus();
+    } else if(e.key === 'End'){
+      e.preventDefault();
+      lineOptions[lineOptions.length - 1].focus();
+    }
+  });
+});
+
+lineBtn.setAttribute('aria-haspopup', 'listbox');
+lineBtn.setAttribute('aria-expanded', 'false');
+lineDropdown.setAttribute('role', 'listbox');
+
 document.addEventListener('click', (e) => {
-  if(!e.target.closest('.line-selector')) lineDropdown.classList.remove('open');
+  if(!e.target.closest('.line-selector')) closeLineDropdown();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && isLineDropdownOpen()) closeLineDropdown();
 });
 
-document.getElementById('themeBtn').onclick = toggleTheme;
-document.getElementById('modeBtn').onclick = toggleMode;
-document.getElementById('notifBtn').onclick = toggleNotif;
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+document.getElementById('modeBtn').addEventListener('click', toggleMode);
+document.getElementById('notifBtn').addEventListener('click', toggleNotif);
 
-document.getElementById('statsBtn').onclick = () => togglePanel('statsPanel');
-document.getElementById('tripBtn').onclick = () => togglePanel('tripPanel');
-document.getElementById('settingsBtn').onclick = () => togglePanel('settingsPanel');
-document.getElementById('aboutBtn').onclick = () => togglePanel('aboutPanel');
+document.getElementById('statsBtn').addEventListener('click', () => togglePanel('statsPanel'));
+document.getElementById('tripBtn').addEventListener('click', () => togglePanel('tripPanel'));
+document.getElementById('settingsBtn').addEventListener('click', () => togglePanel('settingsPanel'));
+document.getElementById('aboutBtn').addEventListener('click', () => togglePanel('aboutPanel'));
 
-startBtn.onclick = () => {
+startBtn.addEventListener('click', () => {
   if(timeMode === 'kairos' && overtime){
     if(phase === 'work') addWorkFromPhase();
     advancePhase();
@@ -393,7 +476,7 @@ startBtn.onclick = () => {
     return;
   }
   if(running){
-    setTimeout(pauseTimer, 70);
+    pauseTimer();
     return;
   }
   if(!hasStarted){
@@ -402,8 +485,8 @@ startBtn.onclick = () => {
     chimeGo();
   }
   startTimer();
-};
-resetBtn.onclick = fullReset;
+});
+resetBtn.addEventListener('click', fullReset);
 
 ['inWork', 'inRest', 'inJourneys', 'inLong'].forEach(id => {
   document.getElementById(id).addEventListener('change', () => {
@@ -414,3 +497,7 @@ resetBtn.onclick = fullReset;
 });
 
 document.getElementById('langSelect').addEventListener('change', (e) => setLocale(e.target.value));
+
+// Checker de rollover de stats (para que funcione si la pestaña queda
+// abierta cruzando medianoche).
+startRolloverChecker();

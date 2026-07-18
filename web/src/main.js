@@ -1,16 +1,15 @@
-// Entry point. Imports every module and runs the init sequence that the
-// original app.js performed at the bottom of the file.
+// Entry point. Imports every module and runs the init sequence.
 import { LINES } from './data.js';
 import { syncRoute } from './util.js';
 import { currentLine, timeMode, applyRouteFromPath } from './timer.js';
 import {
   detectLocale, applyUIText, buildStations, updDisplay, updBtns,
   updModeBtn, updTripDurationNote, updNotifBtn, startClock, updAnalogClock,
-  loadTheme, loadMode, loadNotif, setUiLocale
+  loadTheme, loadMode, loadNotif, setUiLocale, applyUIText as reapplyUIText
 } from './ui.js';
 import { loadStats } from './stats.js';
 
-// Init sequence (mirrors the bottom of the original app.js).
+// Init sequence
 setUiLocale(detectLocale());
 loadStats();
 loadTheme();
@@ -20,8 +19,6 @@ applyRouteFromPath();
 
 // Reflect URL-derived line state into the line UI.
 if(LINES[currentLine]){
-  // Reuse the same DOM update path selectLine uses, but skip the route sync
-  // and fullReset which would clobber the URL we just parsed.
   const line = LINES[currentLine];
   document.getElementById('lineNameJp').textContent = line.nameJp;
   document.getElementById('lineNameEn').textContent = line.nameEn;
@@ -41,8 +38,31 @@ updNotifBtn();
 updTripDurationNote();
 startClock();
 
+// Re-leer la URL cuando el user usa back/forward. Sin esto, la URL cambia
+// pero currentLine/timeMode quedan stale y la barra muestra una cosa
+// mientras la app muestra otra.
+window.addEventListener('popstate', () => {
+  applyRouteFromPath();
+  syncRoute(currentLine, timeMode);
+  if(LINES[currentLine]){
+    const line = LINES[currentLine];
+    document.getElementById('lineNameJp').textContent = line.nameJp;
+    document.getElementById('lineNameEn').textContent = line.nameEn;
+    document.getElementById('trainIndicator').className = 'train-indicator ' + line.color;
+    document.querySelectorAll('.line-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.line === currentLine);
+    });
+    buildStations();
+  }
+  updModeBtn();
+  updDisplay();
+  updBtns();
+});
+
 window.addEventListener('pageshow', updAnalogClock);
 document.addEventListener('visibilitychange', () => {
+  // Cuando la pestaña vuelve a estar visible, re-arrancar el clock tick.
+  // startClock ya chequea document.hidden y se auto-pausa si está oculta.
   if(!document.hidden) startClock();
 });
 

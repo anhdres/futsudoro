@@ -9,7 +9,7 @@ import { chimeGo, chimeArr, chimeLong, chimeEnd } from './audio.js';
 import { addWork } from './stats.js';
 import { updDisplay, updBtns, buildStations, sendNotif } from './ui.js';
 
-// State
+// State (mutable within this module, read-only to importers)
 export let currentLine = 'yamanote';
 export let cfg = { work: 25, rest: 5, journeys: 4, longRest: 35 };
 export let timeLeft = cfg.work * 60;
@@ -23,55 +23,24 @@ export let timeMode = 'chronos';
 export let overtime = false;
 export let overtimeSeconds = 0;
 
-// Setters for cross-module mutation (ES module `let` exports are read-only
-// to importers, so we expose explicit setters).
-export function setCurrentLine(next){
-  currentLine = normalizeLineKey(next);
-}
+// Longrest completion timeout id (used to cancel pending fullReset on user reset)
+let longrestResetTimer = null;
 
+// Setters for cross-module mutation
+export function setCurrentLine(next){ currentLine = normalizeLineKey(next); }
 export function setTimeMode(next){
   if(next === 'kairos' || next === 'chronos') timeMode = next;
 }
-
-export function setTimeLeft(next){
-  timeLeft = next;
-}
-
-export function setCurrentJourney(next){
-  currentJourney = next;
-}
-
-export function setPhase(next){
-  phase = next;
-}
-
-export function setHasStarted(next){
-  hasStarted = next;
-}
-
-export function setRunning(next){
-  running = next;
-}
-
-export function setTicker(next){
-  ticker = next;
-}
-
-export function setClockTicker(next){
-  clockTicker = next;
-}
-
-export function setOvertime(next){
-  overtime = next;
-}
-
-export function setOvertimeSeconds(next){
-  overtimeSeconds = next;
-}
-
-export function setCfg(next){
-  cfg = next;
-}
+export function setTimeLeft(next){ timeLeft = next; }
+export function setCurrentJourney(next){ currentJourney = next; }
+export function setPhase(next){ phase = next; }
+export function setHasStarted(next){ hasStarted = next; }
+export function setRunning(next){ running = next; }
+export function setTicker(next){ ticker = next; }
+export function setClockTicker(next){ clockTicker = next; }
+export function setOvertime(next){ overtime = next; }
+export function setOvertimeSeconds(next){ overtimeSeconds = next; }
+export function setCfg(next){ cfg = next; }
 
 export function phaseTargetSeconds(){
   if(phase === 'work') return cfg.work * 60;
@@ -79,9 +48,10 @@ export function phaseTargetSeconds(){
   return cfg.longRest * 60;
 }
 
+// Used by kairos overtime "Next" press to credit accumulated time.
 export function addWorkFromPhase(){
   const totalSecs = (cfg.work * 60) + (overtime ? overtimeSeconds : 0);
-  addWork(Math.max(1, Math.round(totalSecs / 60)));
+  addWork(Math.round(totalSecs / 60));
 }
 
 export function enterOvertime(){
@@ -90,7 +60,13 @@ export function enterOvertime(){
   if(phase === 'work'){
     chimeArr();
     sendNotif('Futsu-doro', 'Preset complete. Continue or move to next stop.');
-  }else{
+  } else if(phase === 'longrest'){
+    // Kairos + longrest reached 0: el user puede seguir descansando o terminar.
+    // Usamos chimeEnd (no chimeGo) porque longrest es la estación final,
+    // no una parada intermedia de la que se "parte".
+    chimeLong();
+    sendNotif('Futsu-doro', 'Long rest complete. Press ready when you want to finish.');
+  } else {
     chimeGo();
     sendNotif('Futsu-doro', 'Break preset complete. Press ready when you want to continue.');
   }
@@ -106,7 +82,7 @@ export function advancePhase(){
       timeLeft = cfg.longRest * 60;
       chimeLong();
       sendNotif('Futsu-doro', '終点。Final Destination ' + cfg.longRest + ' min.');
-    }else{
+    } else {
       phase = 'rest';
       timeLeft = cfg.rest * 60;
       chimeArr();
@@ -126,7 +102,11 @@ export function advancePhase(){
   if(phase === 'longrest'){
     chimeEnd();
     sendNotif('Futsu-doro', 'Session complete. Resetting.');
-    setTimeout(fullReset, 800);
+    // Guardamos el id para poder cancelar si el user hace reset antes.
+    longrestResetTimer = setTimeout(() => {
+      longrestResetTimer = null;
+      fullReset();
+    }, 800);
     return false;
   }
   return false;
@@ -177,6 +157,11 @@ export function pauseTimer(){
 }
 
 export function fullReset(){
+  // Cancelar cualquier reset diferido de longrest para evitar doble reset.
+  if(longrestResetTimer !== null){
+    clearTimeout(longrestResetTimer);
+    longrestResetTimer = null;
+  }
   pauseTimer();
   phase = 'work';
   hasStarted = false;
@@ -185,13 +170,20 @@ export function fullReset(){
   overtime = false;
   overtimeSeconds = 0;
   buildStations();
+  // Reset clock hands via updAnalogClock (acoplamiento DOM queda en ui.js).
   const tpEl = document.getElementById('trackProgress');
   if(tpEl) tpEl.style.width = '0%';
-  document.getElementById('secondHand').style.transform = 'rotate(0deg)';
-  document.getElementById('minuteHand').style.transform = 'rotate(0deg)';
-  document.getElementById('hourHand').style.transform = 'rotate(0deg)';
+  // Trigger one analog clock tick (will render 0deg hands).
   updDisplay();
   updBtns();
+  // Forzar reset de las agujas después de updDisplay, ya que updDisplay
+  // no toca el reloj analógico (lo maneja startClock).
+  const sh = document.getElementById('secondHand');
+  const mh = document.getElementById('minuteHand');
+  const hh = document.getElementById('hourHand');
+  if(sh) sh.style.transform = 'rotate(0deg)';
+  if(mh) mh.style.transform = 'rotate(0deg)';
+  if(hh) hh.style.transform = 'rotate(0deg)';
 }
 
 export function applyCfg(){
@@ -221,12 +213,9 @@ export function applyRouteFromPath(){
     }
     if(LINES[seg]){
       routeLine = seg;
-      return;
     }
-    // Fallback defensivo para slugs viejos/no ASCII
-    if(/[^a-z0-9-]/i.test(seg)){
-      routeLine = 'lupiche';
-    }
+    // Nota: el fallback para slugs no-ASCII vive en normalizeLineKey;
+    // si el segmento no matchea ninguna línea conocida, se ignora (mantiene default).
   });
 
   if(routeLine) setCurrentLine(routeLine);

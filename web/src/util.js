@@ -14,8 +14,8 @@ export function normalizeLineKey(raw){
   if(LINES[key]) return key;
   const decoded = decodeURIComponent(String(raw));
   if(LINES[decoded]) return decoded;
-  // Fallback defensivo para slugs legacy/no ASCII: priorizar línea válida en vez de romper UI.
-  if(/[^a-z0-9-]/i.test(decoded)) return 'lupiche';
+  // Fallback defensivo: slug desconocido no debe forzar línea China.
+  // Mantener yamanote (default) es más predecible que cambiar silenciosamente.
   return 'yamanote';
 }
 

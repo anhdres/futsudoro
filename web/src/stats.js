@@ -8,27 +8,66 @@ export let stats = {
   history: []
 };
 
+// Cache para evitar re-render del sparkline cada tick (llamado desde
+// updDisplay -> updStatsUI una vez por segundo). Solo se re-renderiza
+// cuando cambian los datos o el set de fechas de la ventana.
+let sparklineCache = {
+  lastHistoryLen: -1,
+  lastTotal: -1,
+  lastToday: -1,
+  lastDateKey: ''
+};
+
+// Safe localStorage wrapper (Safari private mode tira QuotaExceededError).
+function safeGet(key){
+  try { return localStorage.getItem(key); } catch(_e){ return null; }
+}
+function safeSet(key, val){
+  try { localStorage.setItem(key, val); } catch(_e){ /* silent */ }
+}
+
 export function loadStats(){
-  let s = localStorage.getItem('futsuStats');
+  const s = safeGet('futsuStats');
   if(s){
-    stats = JSON.parse(s);
+    try { stats = JSON.parse(s); } catch(_e){ /* keep defaults */ }
     const todayKey = new Date().toDateString();
     if(stats.lastDate !== todayKey){
-      if(!stats.history) stats.history = [];
-      if(stats.today > 0){
-        stats.history.push({ date: stats.lastDate, minutes: stats.today });
-        if(stats.history.length > 30) stats.history = stats.history.slice(-30);
-      }
-      stats.today = 0;
-      stats.lastDate = todayKey;
+      rolloverStats(todayKey);
     }
   }
   if(!stats.history) stats.history = [];
+  // Invalidate cache so the next renderSparkline call does a full repaint.
+  sparklineCache.lastHistoryLen = -1;
   updStatsUI();
 }
 
+function rolloverStats(todayKey){
+  if(!stats.history) stats.history = [];
+  if(stats.today > 0){
+    stats.history.push({ date: stats.lastDate, minutes: stats.today });
+    if(stats.history.length > 30) stats.history = stats.history.slice(-30);
+  }
+  stats.today = 0;
+  stats.lastDate = todayKey;
+}
+
 export function saveStats(){
-  localStorage.setItem('futsuStats', JSON.stringify(stats));
+  safeSet('futsuStats', JSON.stringify(stats));
+}
+
+// Re-chequea rollover cada 60s por si la pestaña queda abierta cruzando medianoche.
+let rolloverChecker = null;
+export function startRolloverChecker(){
+  if(rolloverChecker) return;
+  rolloverChecker = setInterval(() => {
+    const todayKey = new Date().toDateString();
+    if(stats.lastDate !== todayKey){
+      rolloverStats(todayKey);
+      saveStats();
+      sparklineCache.lastHistoryLen = -1;
+      updStatsUI();
+    }
+  }, 60000);
 }
 
 export function updStatsUI(){
@@ -36,6 +75,23 @@ export function updStatsUI(){
   document.getElementById('stTotal').textContent = stats.total;
   document.getElementById('curJ').textContent = Math.min(currentJourney + 1, cfg.journeys);
   document.getElementById('totJ').textContent = cfg.journeys;
+  renderSparklineIfChanged();
+}
+
+function renderSparklineIfChanged(){
+  const todayKey = new Date().toDateString();
+  const changed =
+    stats.history.length !== sparklineCache.lastHistoryLen ||
+    stats.total !== sparklineCache.lastTotal ||
+    stats.today !== sparklineCache.lastToday ||
+    todayKey !== sparklineCache.lastDateKey;
+  if(!changed) return;
+  sparklineCache = {
+    lastHistoryLen: stats.history.length,
+    lastTotal: stats.total,
+    lastToday: stats.today,
+    lastDateKey: todayKey
+  };
   renderSparkline();
 }
 
