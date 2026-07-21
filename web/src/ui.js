@@ -99,6 +99,7 @@ export function applyUIText(){
   set('titleSettings', t('systemSettings'));
   set('labelMode', t('mode'));
   set('labelNotifications', t('notifications'));
+  set('labelPa', t('stationAnnouncements'));
   set('labelTheme', t('theme'));
   set('labelLanguage', t('language'));
   set('aboutText1', t('about1'));

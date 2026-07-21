@@ -3,7 +3,7 @@
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
 export const VERSION = '0.2.0';
-export const BUILD = '75531cb';
+export const BUILD = '06a4de2';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names
@@ -246,6 +246,7 @@ export const UI_STRINGS={
     travelLog:'記録', stops:'停車駅', today:'今日', allTime:'累計', min:'分',
     tripConfig:'行程設定', work:'作業（分）', break:'休憩（分）', longRest:'長い休憩（分）',
     systemSettings:'システム設定', mode:'モード', notifications:'通知', theme:'テーマ', language:'言語',
+    stationAnnouncements:'駅アナウンス',
     notifOn:'ON', notifOff:'OFF',
     light:'ライト', dark:'ダーク',
     tripDuration:'終点までの所要時間: {duration}',
@@ -261,6 +262,7 @@ export const UI_STRINGS={
     travelLog:'Log', stops:'Stops', today:'Today', allTime:'All Time', min:'min',
     tripConfig:'Trip Configuration', work:'Work (min)', break:'Break (min)', longRest:'Long Break (min)',
     systemSettings:'System Settings', mode:'Mode', notifications:'Notifications', theme:'Theme', language:'Language',
+    stationAnnouncements:'Station Announcements',
     notifOn:'ON', notifOff:'OFF',
     light:'Light', dark:'Dark',
     tripDuration:'Travel time to destination: {duration}',
@@ -276,6 +278,7 @@ export const UI_STRINGS={
     travelLog:'Diario', stops:'Paradas', today:'Hoy', allTime:'Total', min:'min',
     tripConfig:'Configuración del viaje', work:'Trabajo (min)', break:'Descanso (min)', longRest:'Descanso largo (min)',
     systemSettings:'Ajustes del sistema', mode:'Modo', notifications:'Notificaciones', theme:'Tema', language:'Idioma',
+    stationAnnouncements:'Anuncios de estación',
     notifOn:'SI', notifOff:'NO',
     light:'Claro', dark:'Oscuro',
     tripDuration:'Tiempo de viaje al destino: {duration}',
@@ -291,6 +294,7 @@ export const UI_STRINGS={
     travelLog:'Diario', stops:'Fermate', today:'Oggi', allTime:'Totale', min:'min',
     tripConfig:'Configurazione viaggio', work:'Lavoro (min)', break:'Pausa (min)', longRest:'Pausa lunga (min)',
     systemSettings:'Impostazioni sistema', mode:'Modalità', notifications:'Notifiche', theme:'Tema', language:'Lingua',
+    stationAnnouncements:'Annunci di stazione',
     notifOn:'SI', notifOff:'NO',
     light:'Chiaro', dark:'Scuro',
     tripDuration:'Tempo di viaggio fino al capolinea: {duration}',
@@ -306,6 +310,7 @@ export const UI_STRINGS={
     travelLog:'Log', stops:'Halte', today:'Heute', allTime:'Gesamt', min:'min',
     tripConfig:'Fahrtkonfiguration', work:'Arbeit (min)', break:'Pause (min)', longRest:'Lange Pause (min)',
     systemSettings:'Systemeinstellungen', mode:'Modus', notifications:'Benachrichtigungen', theme:'Thema', language:'Sprache',
+    stationAnnouncements:'Bahnsteigansagen',
     notifOn:'JA', notifOff:'NEIN',
     light:'Hell', dark:'Dunkel',
     tripDuration:'Fahrzeit bis zum Ziel: {duration}',
@@ -321,6 +326,7 @@ export const UI_STRINGS={
     travelLog:'लॉग', stops:'स्टॉप', today:'आज', allTime:'कुल', min:'मिनट',
     tripConfig:'यात्रा कॉन्फ़िगरेशन', work:'काम (मिन)', break:'ब्रेक (मिन)', longRest:'लंबा ब्रेक (मिन)',
     systemSettings:'सिस्टम सेटिंग्स', mode:'मोड', notifications:'सूचनाएँ', theme:'थीम', language:'भाषा',
+    stationAnnouncements:'स्टेशन की घोषणाएँ',
     notifOn:'हाँ', notifOff:'नहीं',
     light:'लाइट', dark:'डार्क',
     tripDuration:'गंतव्य तक यात्रा समय: {duration}',
@@ -336,6 +342,7 @@ export const UI_STRINGS={
     travelLog:'Journal', stops:'Arrêts', today:'Aujourd’hui', allTime:'Total', min:'min',
     tripConfig:'Configuration du trajet', work:'Travail (min)', break:'Pause (min)', longRest:'Pause longue (min)',
     systemSettings:'Paramètres système', mode:'Mode', notifications:'Notifications', theme:'Thème', language:'Langue',
+    stationAnnouncements:'Annonces en gare',
     notifOn:'OUI', notifOff:'NON',
     light:'Clair', dark:'Sombre',
     tripDuration:'Temps de trajet jusqu’au terminus : {duration}',
@@ -351,6 +358,7 @@ export const UI_STRINGS={
     travelLog:'Logg', stops:'Stopp', today:'Idag', allTime:'Totalt', min:'min',
     tripConfig:'Reseinställningar', work:'Arbete (min)', break:'Paus (min)', longRest:'Lång paus (min)',
     systemSettings:'Systeminställningar', mode:'Läge', notifications:'Notiser', theme:'Tema', language:'Språk',
+    stationAnnouncements:'Stationsmeddelanden',
     notifOn:'JA', notifOff:'NEJ',
     light:'Ljust', dark:'Mörkt',
     tripDuration:'Restid till slutstation: {duration}',
@@ -366,6 +374,7 @@ export const UI_STRINGS={
     travelLog:'Registro', stops:'Paradas', today:'Hoje', allTime:'Total', min:'min',
     tripConfig:'Configuração da viagem', work:'Trabalho (min)', break:'Pausa (min)', longRest:'Pausa longa (min)',
     systemSettings:'Configurações do sistema', mode:'Modo', notifications:'Notificações', theme:'Tema', language:'Idioma',
+    stationAnnouncements:'Anúncios de estação',
     notifOn:'SIM', notifOff:'NÃO',
     light:'Claro', dark:'Escuro',
     tripDuration:'Tempo de viagem até o destino: {duration}',
