@@ -102,10 +102,12 @@ export function advancePhase(){
       timeLeft = cfg.rest * 60;
       chimeArr();
       // PA: announce arrival at the new station.
-      // El chime ya se reprodujo; el PA sale 200ms después (audio.js maneja gap).
+      // Delay 1.5s para que el chime termine antes (no overlap).
+      // Bug fix 2026-07-21: stationName es la NUEVA estación a la que llegamos
+      // (currentJourney ya se incrementó arriba).
       if(paEnabled()){
         const stationName = getStationsFor(currentLine)[currentJourney].jp;
-        playArrival(currentLine, stationName);
+        setTimeout(() => playArrival(currentLine, stationName), 1500);
       }
       sendNotif('Futsu-doro', 'At station ' + getStationsFor(currentLine)[currentJourney].jp + '. ' + cfg.rest + ' min rest.');
     }
@@ -117,11 +119,15 @@ export function advancePhase(){
     phase = 'work';
     timeLeft = cfg.work * 60;
     chimeGo();
-    // PA: announce departure toward next station.
+    // PA: announce departure toward NEXT station.
+    // Bug fix 2026-07-21: al partir de la estación actual, el PA debe decir
+    // la PRÓXIMA, no la actual. currentJourney apunta a la estación donde
+    // estamos, así que la próxima es currentJourney + 1 (con wrap-around).
     if(paEnabled()){
       const stations = getStationsFor(currentLine);
-      const nextStation = stations[currentJourney] ? stations[currentJourney].jp : null;
-      if(nextStation) playDeparture(currentLine, nextStation);
+      const nextIdx = (currentJourney + 1) % stations.length;
+      const nextStation = stations[nextIdx].jp;
+      setTimeout(() => playDeparture(currentLine, nextStation), 1500);
     }
     sendNotif('Futsu-doro', 'Departing. ' + cfg.work + ' min of work.');
     return true;

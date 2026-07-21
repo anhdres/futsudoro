@@ -137,7 +137,12 @@ export async function playArrival(lineId, stationName){
   if(!buf || !audioCtx) return;
   const src = audioCtx.createBufferSource();
   src.buffer = buf;
-  src.connect(audioCtx.destination);
+  // Gain boost: el wav filtrado sale a RMS ~-25dB. El chime usa peak ~0.1
+  // (-20dB). Sin boost, el PA queda notablemente más bajo que el chime.
+  // gain 2.0 ≈ +6dB → PA y chime quedan a niveles comparables.
+  const gain = audioCtx.createGain();
+  gain.gain.value = 2.0;
+  src.connect(gain).connect(audioCtx.destination);
   // +0.05s de margen para evitar clicks al inicio y dar tiempo a que el
   // decode termine si estamos justo en el límite del user gesture.
   src.start(audioCtx.currentTime + 0.05);
@@ -159,14 +164,19 @@ export async function playDeparture(lineId, nextStationName){
   ]);
   if(!prefixBuf || !stationBuf || !audioCtx) return;
   const t = audioCtx.currentTime + 0.05;
+  // Gain boost (ver comentario en playArrival).
+  const gain1 = audioCtx.createGain();
+  gain1.gain.value = 2.0;
+  const gain2 = audioCtx.createGain();
+  gain2.gain.value = 2.0;
   const src1 = audioCtx.createBufferSource();
   src1.buffer = prefixBuf;
-  src1.connect(audioCtx.destination);
+  src1.connect(gain1).connect(audioCtx.destination);
   src1.start(t);
   // Gap 200ms entre prefijo y nombre (unión limpia, sin "tick").
   const src2 = audioCtx.createBufferSource();
   src2.buffer = stationBuf;
-  src2.connect(audioCtx.destination);
+  src2.connect(gain2).connect(audioCtx.destination);
   src2.start(t + prefixBuf.duration + 0.2);
 }
 
