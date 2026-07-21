@@ -180,6 +180,38 @@ export async function playDeparture(lineId, nextStationName){
   src2.start(t + prefixBuf.duration + 0.2);
 }
 
+/**
+ * Reproduce el anuncio PA de "estación final" — prefijo "Estación final:" +
+ * gap 200ms + nombre de la última estación.
+ * Suena al llegar a la última estación antes del longrest.
+ * @param {string} lineId
+ * @param {string} terminalStationName
+ */
+export async function playTerminalArrival(lineId, terminalStationName){
+  initAudio();
+  const lang = LINE_LANG[lineId] || 'en';
+  const prefixUrl = `${baseUrl()}/prefixes/${lang}_terminal.wav`;
+  const stationUrl = `${baseUrl()}/stations/${safeKey(terminalStationName)}.wav`;
+  const [prefixBuf, stationBuf] = await Promise.all([
+    loadBuffer(prefixUrl),
+    loadBuffer(stationUrl),
+  ]);
+  if(!prefixBuf || !stationBuf || !audioCtx) return;
+  const t = audioCtx.currentTime + 0.05;
+  const gain1 = audioCtx.createGain();
+  gain1.gain.value = 2.0;
+  const gain2 = audioCtx.createGain();
+  gain2.gain.value = 2.0;
+  const src1 = audioCtx.createBufferSource();
+  src1.buffer = prefixBuf;
+  src1.connect(gain1).connect(audioCtx.destination);
+  src1.start(t);
+  const src2 = audioCtx.createBufferSource();
+  src2.buffer = stationBuf;
+  src2.connect(gain2).connect(audioCtx.destination);
+  src2.start(t + prefixBuf.duration + 0.2);
+}
+
 export function trackEvent(name, data){
   try{
     if(typeof window.va === 'function'){

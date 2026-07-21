@@ -518,6 +518,19 @@ startBtn.addEventListener('click', () => {
     setHasStarted(true);
     setPhase('work');
     chimeGo();
+    // PA: departing inicial al arrancar el timer (como subirse al tren).
+    // currentJourney = 0 al inicio, así que la próxima estación es la 1.
+    // Delay 1.5s igual que los otros PAs para no superponerse al chime.
+    if(paEnabledRead()){
+      import('./audio.js').then(m => {
+        import('./util.js').then(u => {
+          const list = u.getStationsFor(currentLine);
+          const nextIdx = 1 % list.length;
+          const nextStation = list[nextIdx].jp;
+          setTimeout(() => m.playDeparture(currentLine, nextStation), 1500);
+        });
+      });
+    }
   }
   startTimer();
 });

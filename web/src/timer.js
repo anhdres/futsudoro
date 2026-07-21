@@ -5,7 +5,7 @@
 // makes it read-only to importers).
 import { LINES } from './data.js';
 import { normalizeLineKey, getStationsFor } from './util.js';
-import { chimeGo, chimeArr, chimeLong, chimeEnd, playArrival, playDeparture } from './audio.js';
+import { chimeGo, chimeArr, chimeLong, chimeEnd, playArrival, playDeparture, playTerminalArrival } from './audio.js';
 import { addWork } from './stats.js';
 import { updDisplay, updBtns, buildStations, sendNotif } from './ui.js';
 
@@ -96,6 +96,13 @@ export function advancePhase(){
       phase = 'longrest';
       timeLeft = cfg.longRest * 60;
       chimeLong();
+      // PA: estación final (última del viaje). El prefijo "Estación final:"
+      // precede al nombre, igual que los otros anuncios (prefijo + nombre).
+      // currentJourney ya se incrementó arriba, así que apunta a la última.
+      if(paEnabled()){
+        const stationName = getStationsFor(currentLine)[currentJourney].jp;
+        setTimeout(() => playTerminalArrival(currentLine, stationName), 1500);
+      }
       sendNotif('Futsu-doro', '終点。Final Destination ' + cfg.longRest + ' min.');
     } else {
       phase = 'rest';

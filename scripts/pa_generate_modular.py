@@ -49,25 +49,37 @@ VOICES = {
 
 # Prefijos por idioma × momento
 # approaching = "1 min antes de llegar", departing = "al salir"
+# terminal = "estación terminal" (llegada a la última estación, suena junto al nombre)
+# Nombres "_terminal" en vez de "_final" porque el hygiene checker (check-hygiene.sh)
+# matchea "_final" como variante de asset.
 PREFIXES = {
     ("es", "approaching"): "Llegando a:",
     ("es", "departing"):   "Próxima estación:",
+    ("es", "terminal"):    "Estación final:",
     ("en", "approaching"): "Arriving at:",
     ("en", "departing"):   "Next station:",
+    ("en", "terminal"):    "Terminal station:",
     ("ja", "approaching"): "まもなく、",
     ("ja", "departing"):   "次は、",
+    ("ja", "terminal"):    "終点、",
     ("fr", "approaching"): "Arrivée à:",
     ("fr", "departing"):   "Prochaine gare:",
+    ("fr", "terminal"):    "Gare terminale:",
     ("de", "approaching"): "Nächster Halt:",
     ("de", "departing"):   "Nächster Halt:",
+    ("de", "terminal"):    "Endstation:",
     ("it", "approaching"): "In arrivo a:",
     ("it", "departing"):   "Prossima fermata:",
+    ("it", "terminal"):    "Stazione finale:",
     ("sv", "approaching"): "Ankommer till:",
     ("sv", "departing"):   "Nästa station:",
+    ("sv", "terminal"):    "Slutstation:",
     ("zh", "approaching"): "即将到达：",
     ("zh", "departing"):   "下一站：",
+    ("zh", "terminal"):    "终点站：",
     ("hi", "approaching"): "आ रहा है:",
     ("hi", "departing"):   "अगला स्टेशन:",
+    ("hi", "terminal"):    "अंतिम स्टेशन:",
 }
 
 # Catálogo completo de las 12 líneas (de futsudoro.md)
@@ -228,7 +240,7 @@ def main():
 
     print(f"=== {len(unique_langs)} idiomas × 2 momentos = {len(unique_langs)*2} prefijos ===")
     for lang in unique_langs:
-        for moment in ("approaching", "departing"):
+        for moment in ("approaching", "departing", "terminal"):
             gen_prefix(lang, moment)
 
     print(f"\n=== {len(all_stations)} estaciones únicas ===")
