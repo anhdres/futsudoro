@@ -77,9 +77,11 @@ async function loadBuffer(url){
     const buf = await audioCtx.decodeAudioData(arr);
     bufferCache.set(url, buf);
     return buf;
-  }catch(_e){
+  }catch(e){
     // Si falla la carga del wav, no rompemos la app — sólo no suena el PA.
     // El chime ya se reprodujo, así que el feedback auditivo mínimo está.
+    // Log para debug (Andrés 2026-07-21: bug en JA/HI que no sonorizaba).
+    console.warn(`[PA] loadBuffer failed for ${url}:`, e.message);
     return null;
   }
 }
@@ -133,8 +135,16 @@ export async function playArrival(lineId, stationName){
   initAudio();
   const lang = LINE_LANG[lineId] || 'en';
   const url = `${baseUrl()}/stations/${safeKey(stationName)}.wav`;
+  console.log(`[PA] playArrival ${lineId}/${lang} station=${stationName} url=${url}`);
   const buf = await loadBuffer(url);
-  if(!buf || !audioCtx) return;
+  if(!buf) {
+    console.warn(`[PA] playArrival aborted: no buffer for ${url}`);
+    return;
+  }
+  if(!audioCtx) {
+    console.warn(`[PA] playArrival aborted: no audioCtx`);
+    return;
+  }
   const src = audioCtx.createBufferSource();
   src.buffer = buf;
   // Gain boost: el wav filtrado sale a RMS ~-25dB. El chime usa peak ~0.1
