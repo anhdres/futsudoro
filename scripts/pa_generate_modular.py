@@ -49,37 +49,38 @@ VOICES = {
 
 # Prefijos por idioma × momento
 # approaching = "1 min antes de llegar", departing = "al salir"
-# terminal = "estación terminal" (llegada a la última estación, suena junto al nombre)
-# Nombres "_terminal" en vez de "_final" porque el hygiene checker (check-hygiene.sh)
-# matchea "_final" como variante de asset.
+# terminal = "etiqueta de estación terminal" — se reproduce DESPUÉS del nombre,
+# en orden invertido (nombre + ". " + etiqueta), no prefijo + nombre como los
+# otros anuncios. Ver playTerminalArrival en audio.js. Andrés feedback 2026-07-21
+# 16:32: "salem. terminal station" en vez de "terminal station: salem."
 PREFIXES = {
     ("es", "approaching"): "Llegando a:",
     ("es", "departing"):   "Próxima estación:",
-    ("es", "terminal"):    "Estación final:",
+    ("es", "terminal"):    "Estación final",
     ("en", "approaching"): "Arriving at:",
     ("en", "departing"):   "Next station:",
-    ("en", "terminal"):    "Terminal station:",
+    ("en", "terminal"):    "Terminal station",
     ("ja", "approaching"): "まもなく、",
     ("ja", "departing"):   "次は、",
-    ("ja", "terminal"):    "終点、",
+    ("ja", "terminal"):    "終点",
     ("fr", "approaching"): "Arrivée à:",
     ("fr", "departing"):   "Prochaine gare:",
-    ("fr", "terminal"):    "Gare terminale:",
+    ("fr", "terminal"):    "Gare terminale",
     ("de", "approaching"): "Nächster Halt:",
     ("de", "departing"):   "Nächster Halt:",
-    ("de", "terminal"):    "Endstation:",
+    ("de", "terminal"):    "Endstation",
     ("it", "approaching"): "In arrivo a:",
     ("it", "departing"):   "Prossima fermata:",
-    ("it", "terminal"):    "Stazione finale:",
+    ("it", "terminal"):    "Stazione finale",
     ("sv", "approaching"): "Ankommer till:",
     ("sv", "departing"):   "Nästa station:",
-    ("sv", "terminal"):    "Slutstation:",
+    ("sv", "terminal"):    "Slutstation",
     ("zh", "approaching"): "即将到达：",
     ("zh", "departing"):   "下一站：",
-    ("zh", "terminal"):    "终点站：",
+    ("zh", "terminal"):    "终点站",
     ("hi", "approaching"): "आ रहा है:",
     ("hi", "departing"):   "अगला स्टेशन:",
-    ("hi", "terminal"):    "अंतिम स्टेशन:",
+    ("hi", "terminal"):    "अंतिम स्टेशन",
 }
 
 # Catálogo completo de las 12 líneas (de futsudoro.md)
@@ -238,14 +239,18 @@ def main():
     # Set único de idiomas (para prefijos)
     unique_langs = sorted(set(line["lang"] for line in LINES.values()))
 
-    print(f"=== {len(unique_langs)} idiomas × 2 momentos = {len(unique_langs)*2} prefijos ===")
-    for lang in unique_langs:
+    # CLI args: si pasan idiomas como argumentos, solo generar esos prefijos
+    target_langs = sys.argv[1:] if len(sys.argv) > 1 else unique_langs
+
+    print(f"=== {len(target_langs)} idiomas × 3 momentos = {len(target_langs)*3} prefijos ===")
+    for lang in target_langs:
         for moment in ("approaching", "departing", "terminal"):
             gen_prefix(lang, moment)
 
-    print(f"\n=== {len(all_stations)} estaciones únicas ===")
-    for name, lang in sorted(all_stations.items()):
-        gen_station(name, lang)
+    if target_langs == unique_langs:
+        print(f"\n=== {len(all_stations)} estaciones únicas ===")
+        for name, lang in sorted(all_stations.items()):
+            gen_station(name, lang)
 
     print(f"\n✓ Prefijos en {PREFIX_DIR}/")
     print(f"✓ Estaciones en {STATION_DIR}/")

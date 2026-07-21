@@ -2,7 +2,7 @@
 // State: audioCtx (lazy-initialized on first initAudio call).
 let audioCtx = null;
 
-export function initAudio(){
+function initAudio(){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if(audioCtx.state === 'suspended') audioCtx.resume();
 }
@@ -181,8 +181,9 @@ export async function playDeparture(lineId, nextStationName){
 }
 
 /**
- * Reproduce el anuncio PA de "estación final" — prefijo "Estación final:" +
- * gap 200ms + nombre de la última estación.
+ * Reproduce el anuncio PA de "estación terminal" — formato invertido:
+ * NOMBRE + gap 200ms + ETIQUETA ("Salem. Terminal station" en vez de
+ * "Terminal station: Salem"). Andrés feedback 2026-07-21 16:32.
  * Suena al llegar a la última estación antes del longrest.
  * @param {string} lineId
  * @param {string} terminalStationName
@@ -202,14 +203,16 @@ export async function playTerminalArrival(lineId, terminalStationName){
   gain1.gain.value = 2.0;
   const gain2 = audioCtx.createGain();
   gain2.gain.value = 2.0;
+  // Nombre PRIMERO (formato invertido vs playDeparture).
   const src1 = audioCtx.createBufferSource();
-  src1.buffer = prefixBuf;
+  src1.buffer = stationBuf;
   src1.connect(gain1).connect(audioCtx.destination);
   src1.start(t);
+  // Gap 200ms + etiqueta (prefijo sin ":" al final, ej "Terminal station").
   const src2 = audioCtx.createBufferSource();
-  src2.buffer = stationBuf;
+  src2.buffer = prefixBuf;
   src2.connect(gain2).connect(audioCtx.destination);
-  src2.start(t + prefixBuf.duration + 0.2);
+  src2.start(t + stationBuf.duration + 0.2);
 }
 
 export function trackEvent(name, data){
