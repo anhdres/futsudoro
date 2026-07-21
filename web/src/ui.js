@@ -13,6 +13,7 @@ import {
   syncRoute
 } from './util.js';
 import { trackEvent, chimeGo } from './audio.js';
+import { paEnabled as paEnabledRead, setPaEnabled } from './timer.js';
 import { updStatsUI, startRolloverChecker } from './stats.js';
 import {
   currentLine, timeMode, cfg, timeLeft, running, phase,
@@ -369,6 +370,26 @@ export function sendNotif(title, body){
   if(notifEnabled && document.hidden) new Notification(title, { body });
 }
 
+// PA toggle — Andrés feedback 2026-07-21: default ON, toggle lo apaga si molesta.
+export function updPaBtn(){
+  const b = document.getElementById('paBtn');
+  if(!b) return;
+  const on = paEnabledRead();
+  b.textContent = on ? 'ON' : 'OFF';
+  b.classList.toggle('on', on);
+}
+
+export function togglePa(){
+  const next = !paEnabledRead();
+  setPaEnabled(next);
+  updPaBtn();
+  trackEvent('pa_toggle', { enabled: next });
+}
+
+export function loadPa(){
+  updPaBtn();
+}
+
 export function togglePanel(id){
   const panels = ['statsPanel', 'tripPanel', 'settingsPanel', 'aboutPanel'];
   const btns = ['statsBtn', 'tripBtn', 'settingsBtn', 'aboutBtn'];
@@ -474,6 +495,7 @@ document.addEventListener('keydown', (e) => {
 document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 document.getElementById('modeBtn').addEventListener('click', toggleMode);
 document.getElementById('notifBtn').addEventListener('click', toggleNotif);
+document.getElementById('paBtn').addEventListener('click', togglePa);
 
 document.getElementById('statsBtn').addEventListener('click', () => togglePanel('statsPanel'));
 document.getElementById('tripBtn').addEventListener('click', () => togglePanel('tripPanel'));

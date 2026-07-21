@@ -5,7 +5,7 @@
 // makes it read-only to importers).
 import { LINES } from './data.js';
 import { normalizeLineKey, getStationsFor } from './util.js';
-import { chimeGo, chimeArr, chimeLong, chimeEnd } from './audio.js';
+import { chimeGo, chimeArr, chimeLong, chimeEnd, playArrival, playDeparture } from './audio.js';
 import { addWork } from './stats.js';
 import { updDisplay, updBtns, buildStations, sendNotif } from './ui.js';
 
@@ -41,6 +41,21 @@ export function setClockTicker(next){ clockTicker = next; }
 export function setOvertime(next){ overtime = next; }
 export function setOvertimeSeconds(next){ overtimeSeconds = next; }
 export function setCfg(next){ cfg = next; }
+
+// PA setting — leído desde localStorage. Default ON.
+// Andrés feedback (2026-07-21): default ON, el toggle lo apaga si molesta.
+export function paEnabled(){
+  try{
+    const v = localStorage.getItem('futsudoro.paEnabled');
+    if(v === null) return true;
+    return v === '1' || v === 'true';
+  }catch(_e){
+    return true;
+  }
+}
+export function setPaEnabled(next){
+  try{ localStorage.setItem('futsudoro.paEnabled', next ? '1' : '0'); }catch(_e){}
+}
 
 export function phaseTargetSeconds(){
   if(phase === 'work') return cfg.work * 60;
@@ -86,6 +101,12 @@ export function advancePhase(){
       phase = 'rest';
       timeLeft = cfg.rest * 60;
       chimeArr();
+      // PA: announce arrival at the new station.
+      // El chime ya se reprodujo; el PA sale 200ms después (audio.js maneja gap).
+      if(paEnabled()){
+        const stationName = getStationsFor(currentLine)[currentJourney].jp;
+        playArrival(currentLine, stationName);
+      }
       sendNotif('Futsu-doro', 'At station ' + getStationsFor(currentLine)[currentJourney].jp + '. ' + cfg.rest + ' min rest.');
     }
     return true;
@@ -96,6 +117,12 @@ export function advancePhase(){
     phase = 'work';
     timeLeft = cfg.work * 60;
     chimeGo();
+    // PA: announce departure toward next station.
+    if(paEnabled()){
+      const stations = getStationsFor(currentLine);
+      const nextStation = stations[currentJourney] ? stations[currentJourney].jp : null;
+      if(nextStation) playDeparture(currentLine, nextStation);
+    }
     sendNotif('Futsu-doro', 'Departing. ' + cfg.work + ' min of work.');
     return true;
   }

@@ -71,3 +71,13 @@ build/
 
 # ─── Local-only deploy shim ───────────────────────────────
 .vercel/
+
+# PA working files (top-level) — only web/pa-sample/ ships to deploy
+/pa-sample/
+
+# Scripts pycache
+scripts/__pycache__/
+*.pyc
+
+# Inbox (random screenshots / images, not deployable)
+/inbox/

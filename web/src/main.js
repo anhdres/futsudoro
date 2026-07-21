@@ -5,7 +5,7 @@ import { currentLine, timeMode, applyRouteFromPath } from './timer.js';
 import {
   detectLocale, applyUIText, buildStations, updDisplay, updBtns,
   updModeBtn, updTripDurationNote, updNotifBtn, startClock, updAnalogClock,
-  loadTheme, loadMode, loadNotif, setUiLocale, applyUIText as reapplyUIText
+  loadTheme, loadMode, loadNotif, loadPa, setUiLocale, applyUIText as reapplyUIText
 } from './ui.js';
 import { loadStats } from './stats.js';
 
@@ -15,6 +15,7 @@ loadStats();
 loadTheme();
 loadMode();
 loadNotif();
+loadPa();
 applyRouteFromPath();
 
 // Reflect URL-derived line state into the line UI.
