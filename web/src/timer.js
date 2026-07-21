@@ -59,30 +59,45 @@ function releaseWakeLock(){
 // dispara advancePhase(), pero el siguiente tick (también comprimido) corre
 // con timeLeft ya en 300 (rest) y lo decrementa mucho de golpe.
 let lastTickTime = Date.now();
+
+// Timestamp absoluto del inicio de la fase actual. Se usa para calcular
+// timeLeft en vez de decrementar por tick — así el valor refleja el tiempo
+// real aunque el setInterval se throttlee en background (Chrome Windows:
+// 1 tick/minuto en tabs minimizadas, Safari iOS: pausa completa).
+// Andrés feedback 2026-07-21: 'directamente deja de contar el tiempo cuando
+// la app es minimizada o pasa al background' en Windows.
+let phaseStartedAt = Date.now();
+function phaseDurationSec(){
+  if(phase === 'work') return cfg.work * 60;
+  if(phase === 'rest') return cfg.rest * 60;
+  return cfg.longRest * 60;
+}
+function recomputeTimeLeft(){
+  if(phase === 'work' && timeMode === 'kairos' && overtime) return; // overtime usa overtimeSeconds
+  const elapsedSec = Math.floor((Date.now() - phaseStartedAt) / 1000);
+  timeLeft = Math.max(0, phaseDurationSec() - elapsedSec);
+}
 function resyncTimer(){
   if(!running) return;
   const now = Date.now();
   const elapsedMs = now - lastTickTime;
-  // Si pasaron más de 5s sin tick, ajustar timeLeft.
+  // Si pasaron más de 5s sin tick, recomputar timeLeft desde timestamp
+  // absoluto y disparar transición si corresponde.
   if(elapsedMs > 5000){
-    const elapsedSec = Math.floor(elapsedMs / 1000);
     if(timeMode === 'kairos' && overtime){
       // En overtime, solo sumar el tiempo perdido a overtimeSeconds.
+      const elapsedSec = Math.floor(elapsedMs / 1000);
       overtimeSeconds += elapsedSec;
     } else {
-      // Decrementar timeLeft por los segundos perdidos.
-      const newTimeLeft = timeLeft - elapsedSec;
-      if(newTimeLeft <= 0){
-        // El timer debió haber avanzado de fase durante el background.
-        // Disparar el camino completo del tick final manualmente.
+      // Recalcular desde phaseStartedAt (ignora timeLeft acumulado).
+      recomputeTimeLeft();
+      if(timeLeft <= 0){
         timeLeft = 0;
         clearInterval(ticker);
         running = false;
         if(phase === 'work') addWork(cfg.work);
         const shouldContinue = advancePhase();
         if(shouldContinue) startTimer();
-      } else {
-        timeLeft = newTimeLeft;
       }
     }
     lastTickTime = now;
@@ -160,6 +175,7 @@ export function advancePhase(){
     if(currentJourney >= cfg.journeys){
       phase = 'longrest';
       timeLeft = cfg.longRest * 60;
+      phaseStartedAt = Date.now();
       chimeLong();
       // PA: estación final (última del viaje). El prefijo "Estación final:"
       // precede al nombre, igual que los otros anuncios (prefijo + nombre).
@@ -172,6 +188,7 @@ export function advancePhase(){
     } else {
       phase = 'rest';
       timeLeft = cfg.rest * 60;
+      phaseStartedAt = Date.now();
       chimeArr();
       // PA: announce arrival at the new station.
       // Delay 1.5s para que el chime termine antes (no overlap).
@@ -190,6 +207,7 @@ export function advancePhase(){
     overtimeSeconds = 0;
     phase = 'work';
     timeLeft = cfg.work * 60;
+    phaseStartedAt = Date.now();
     chimeGo();
     // PA: announce departure toward NEXT station.
     // Bug fix 2026-07-21: al partir de la estación actual, el PA debe decir
@@ -224,7 +242,9 @@ export function tick(){
     updBtns();
     return;
   }
-  timeLeft--;
+  // Calcular timeLeft desde timestamp absoluto (no acumular ticks).
+  // Independiza del throttle del browser en background.
+  recomputeTimeLeft();
   if(timeLeft <= 0){
     timeLeft = 0;
     if(timeMode === 'kairos'){
@@ -250,6 +270,9 @@ export function startTimer(){
   running = true;
   ticker = setInterval(tick, 1000);
   lastTickTime = Date.now();
+  // Reset del timestamp de fase para que recomputeTimeLeft calcule desde ahora.
+  // Importante cuando se llama después de un long background sin ticks.
+  phaseStartedAt = Date.now();
   // Wake Lock: pedir al OS que mantenga el thread activo (mobile).
   if(!document.hidden) requestWakeLock();
   updDisplay();
@@ -276,6 +299,7 @@ export function fullReset(){
   hasStarted = false;
   currentJourney = 0;
   timeLeft = cfg.work * 60;
+  phaseStartedAt = Date.now();
   overtime = false;
   overtimeSeconds = 0;
   lastTickTime = Date.now();
