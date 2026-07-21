@@ -2,10 +2,15 @@
 // VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
+// 0.4.0 — 2026-07-21: PA voice casting — user picked alternatives for en/es/de/zh.
+//                     en: English_SereneWoman → English_CalmWoman
+//                     es: Spanish_SereneWoman → Spanish_SophisticatedLady
+//                     de: German_SweetLady → German_FriendlyMan (mujer → hombre)
+//                     zh: Chinese (Mandarin)_Soft_Girl → Wise_Women
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
-export const VERSION = '0.3.0';
-export const BUILD = 'e909afc';
+export const VERSION = '0.4.0';
+export const BUILD = 'eb9872f';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names

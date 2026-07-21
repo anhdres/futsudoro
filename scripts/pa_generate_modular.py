@@ -36,15 +36,15 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 #         fallback a English_SereneWoman — el modelo multiidioma pronuncia el
 #         texto en sueco aunque la voz base sea EN.
 VOICES = {
-    "es": "Spanish_SereneWoman",
-    "en": "English_SereneWoman",
+    "es": "Spanish_SophisticatedLady",  # Andrés casting 2026-07-21 19:57 GMT-3
+    "en": "English_CalmWoman",           # Andrés casting 2026-07-21 19:57 GMT-3
     "ja": "Japanese_CalmLady",
     "fr": "French_FemaleAnchor",
-    "de": "German_SweetLady",       # única mujer en el catálogo público
-    "it": "Italian_BraveHeroine",   # única mujer en el catálogo público
-    "sv": "English_SereneWoman",    # fallback — ver comentario arriba
-    "zh": "Chinese (Mandarin)_Soft_Girl",
-    "hi": "hindi_female_2_v1",      # "Tranquil Woman"
+    "de": "German_FriendlyMan",          # Andrés casting 2026-07-21 19:57 GMT-3
+    "it": "Italian_BraveHeroine",
+    "sv": "English_SereneWoman",         # fallback — ver comentario arriba
+    "zh": "Chinese (Mandarin)_Wise_Women", # Andrés casting 2026-07-21 19:57 GMT-3
+    "hi": "hindi_female_2_v1",           # "Tranquil Woman"
 }
 
 # Prefijos por idioma × momento
@@ -247,10 +247,11 @@ def main():
         for moment in ("approaching", "departing", "terminal"):
             gen_prefix(lang, moment)
 
-    if target_langs == unique_langs:
-        print(f"\n=== {len(all_stations)} estaciones únicas ===")
-        for name, lang in sorted(all_stations.items()):
-            gen_station(name, lang)
+    # Regenerar estaciones solo de los idiomas target (no las de otros idiomas).
+    target_stations = {name: lang for name, lang in all_stations.items() if lang in target_langs}
+    print(f"\n=== {len(target_stations)} estaciones (de idiomas target) ===")
+    for name, lang in sorted(target_stations.items()):
+        gen_station(name, lang)
 
     print(f"\n✓ Prefijos en {PREFIX_DIR}/")
     print(f"✓ Estaciones en {STATION_DIR}/")
