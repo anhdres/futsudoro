@@ -127,15 +127,20 @@ function baseUrl(){
  * @param {string} stationName - Nombre de la estación (e.g. 'Shinjuku', 'Federico Lacroce')
  */
 export async function playArrival(lineId, stationName){
+  // Resume audio context FIRST (síncrono) para que el start() después del await
+  // siga dentro del user-gesture window. Si esperamos al await, el browser puede
+  // suspender el context otra vez.
+  initAudio();
   const lang = LINE_LANG[lineId] || 'en';
   const url = `${baseUrl()}/stations/${safeKey(stationName)}.wav`;
   const buf = await loadBuffer(url);
-  if(!buf) return;
-  initAudio();
+  if(!buf || !audioCtx) return;
   const src = audioCtx.createBufferSource();
   src.buffer = buf;
   src.connect(audioCtx.destination);
-  src.start(0);
+  // +0.05s de margen para evitar clicks al inicio y dar tiempo a que el
+  // decode termine si estamos justo en el límite del user gesture.
+  src.start(audioCtx.currentTime + 0.05);
 }
 
 /**
@@ -144,6 +149,7 @@ export async function playArrival(lineId, stationName){
  * @param {string} nextStationName
  */
 export async function playDeparture(lineId, nextStationName){
+  initAudio();
   const lang = LINE_LANG[lineId] || 'en';
   const prefixUrl = `${baseUrl()}/prefixes/${lang}_departing.wav`;
   const stationUrl = `${baseUrl()}/stations/${safeKey(nextStationName)}.wav`;
@@ -151,9 +157,8 @@ export async function playDeparture(lineId, nextStationName){
     loadBuffer(prefixUrl),
     loadBuffer(stationUrl),
   ]);
-  if(!prefixBuf || !stationBuf) return;
-  initAudio();
-  const t = audioCtx.currentTime;
+  if(!prefixBuf || !stationBuf || !audioCtx) return;
+  const t = audioCtx.currentTime + 0.05;
   const src1 = audioCtx.createBufferSource();
   src1.buffer = prefixBuf;
   src1.connect(audioCtx.destination);
