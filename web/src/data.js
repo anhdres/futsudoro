@@ -3,7 +3,7 @@
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
 export const VERSION = '0.2.0';
-export const BUILD = '1e7850e';
+export const BUILD = '7c26749';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names

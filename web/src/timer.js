@@ -100,8 +100,8 @@ export function advancePhase(){
       // precede al nombre, igual que los otros anuncios (prefijo + nombre).
       // currentJourney ya se incrementó arriba, así que apunta a la última.
       if(paEnabled()){
-        const stationName = getStationsFor(currentLine)[currentJourney].jp;
-        setTimeout(() => playTerminalArrival(currentLine, stationName), 1500);
+        const stationEntry = getStationsFor(currentLine)[currentJourney];
+        setTimeout(() => playTerminalArrival(currentLine, stationEntry), 1500);
       }
       sendNotif('Futsu-doro', '終点。Final Destination ' + cfg.longRest + ' min.');
     } else {
@@ -113,8 +113,8 @@ export function advancePhase(){
       // Bug fix 2026-07-21: stationName es la NUEVA estación a la que llegamos
       // (currentJourney ya se incrementó arriba).
       if(paEnabled()){
-        const stationName = getStationsFor(currentLine)[currentJourney].jp;
-        setTimeout(() => playArrival(currentLine, stationName), 1500);
+        const stationEntry = getStationsFor(currentLine)[currentJourney];
+        setTimeout(() => playArrival(currentLine, stationEntry), 1500);
       }
       sendNotif('Futsu-doro', 'At station ' + getStationsFor(currentLine)[currentJourney].jp + '. ' + cfg.rest + ' min rest.');
     }
@@ -133,8 +133,7 @@ export function advancePhase(){
     if(paEnabled()){
       const stations = getStationsFor(currentLine);
       const nextIdx = (currentJourney + 1) % stations.length;
-      const nextStation = stations[nextIdx].jp;
-      setTimeout(() => playDeparture(currentLine, nextStation), 1500);
+      setTimeout(() => playDeparture(currentLine, stations[nextIdx]), 1500);
     }
     sendNotif('Futsu-doro', 'Departing. ' + cfg.work + ' min of work.');
     return true;

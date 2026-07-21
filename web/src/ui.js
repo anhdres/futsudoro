@@ -526,8 +526,7 @@ startBtn.addEventListener('click', () => {
         import('./util.js').then(u => {
           const list = u.getStationsFor(currentLine);
           const nextIdx = 1 % list.length;
-          const nextStation = list[nextIdx].jp;
-          setTimeout(() => m.playDeparture(currentLine, nextStation), 1500);
+          setTimeout(() => m.playDeparture(currentLine, list[nextIdx]), 1500);
         });
       });
     }

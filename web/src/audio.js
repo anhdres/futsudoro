@@ -110,9 +110,25 @@ const STATION_ALIAS = {
   'Newburyport': 'nbpt',
 };
 
+// Helper: dada una entry de stations {jp, en}, devuelve la mejor clave para el wav.
+// Usa .en si está disponible y es ASCII puro (es el caso de Yamanote/Konkan/etc.
+// que tienen nombres locales en .jp pero nombres en romaji/ASCII en .en).
+// Si .en está vacío o es solo whitespace, usa .jp.
+// Bug fix 2026-07-21 16:58: usábamos .jp directo, pero safeKey("渋谷") no
+// matcheaba "shibuya_station.wav" (404). Para Yamanote/Konkan/Lupiche el
+// archivo está generado con el nombre EN/ASCII.
+function pickStationKey(stationEntry){
+  if(!stationEntry) return '';
+  const en = (stationEntry.en || '').trim();
+  const jp = (stationEntry.jp || '').trim();
+  if(en) return en;
+  return jp;
+}
+
 // Sufijo "_station" agregado a todos los filenames para evitar colisiones
 // con el regex de variantes del hygiene checker.
 function safeKey(s){
+  if(!s) return '';
   if(STATION_ALIAS[s]) return STATION_ALIAS[s] + '_station';
   return s.toLowerCase().replace(/ /g, '_').replace('.', '') + '_station';
 }
@@ -126,16 +142,14 @@ function baseUrl(){
 /**
  * Reproduce el anuncio PA de "arriving" — solo el nombre de la estación.
  * @param {string} lineId - ID de la línea (e.g. 'yamanote', 'urquiza')
- * @param {string} stationName - Nombre de la estación (e.g. 'Shinjuku', 'Federico Lacroce')
+ * @param {object} stationEntry - Entry de stations {jp, en} del data.js
  */
-export async function playArrival(lineId, stationName){
-  // Resume audio context FIRST (síncrono) para que el start() después del await
-  // siga dentro del user-gesture window. Si esperamos al await, el browser puede
-  // suspender el context otra vez.
+export async function playArrival(lineId, stationEntry){
   initAudio();
   const lang = LINE_LANG[lineId] || 'en';
-  const url = `${baseUrl()}/stations/${safeKey(stationName)}.wav`;
-  console.log(`[PA] playArrival ${lineId}/${lang} station=${stationName} url=${url}`);
+  const key = pickStationKey(stationEntry);
+  const url = `${baseUrl()}/stations/${safeKey(key)}.wav`;
+  console.log(`[PA] playArrival ${lineId}/${lang} key=${key} url=${url}`);
   const buf = await loadBuffer(url);
   if(!buf) {
     console.warn(`[PA] playArrival aborted: no buffer for ${url}`);
@@ -161,13 +175,15 @@ export async function playArrival(lineId, stationName){
 /**
  * Reproduce el anuncio PA de "departing" — prefijo + gap 200ms + nombre próxima.
  * @param {string} lineId
- * @param {string} nextStationName
+ * @param {object} nextStationEntry - Entry de stations {jp, en}
  */
-export async function playDeparture(lineId, nextStationName){
+export async function playDeparture(lineId, nextStationEntry){
   initAudio();
   const lang = LINE_LANG[lineId] || 'en';
+  const key = pickStationKey(nextStationEntry);
   const prefixUrl = `${baseUrl()}/prefixes/${lang}_departing.wav`;
-  const stationUrl = `${baseUrl()}/stations/${safeKey(nextStationName)}.wav`;
+  const stationUrl = `${baseUrl()}/stations/${safeKey(key)}.wav`;
+  console.log(`[PA] playDeparture ${lineId}/${lang} key=${key}`);
   const [prefixBuf, stationBuf] = await Promise.all([
     loadBuffer(prefixUrl),
     loadBuffer(stationUrl),
@@ -196,13 +212,15 @@ export async function playDeparture(lineId, nextStationName){
  * "Terminal station: Salem"). Andrés feedback 2026-07-21 16:32.
  * Suena al llegar a la última estación antes del longrest.
  * @param {string} lineId
- * @param {string} terminalStationName
+ * @param {object} terminalStationEntry - Entry de stations {jp, en}
  */
-export async function playTerminalArrival(lineId, terminalStationName){
+export async function playTerminalArrival(lineId, terminalStationEntry){
   initAudio();
   const lang = LINE_LANG[lineId] || 'en';
+  const key = pickStationKey(terminalStationEntry);
   const prefixUrl = `${baseUrl()}/prefixes/${lang}_terminal.wav`;
-  const stationUrl = `${baseUrl()}/stations/${safeKey(terminalStationName)}.wav`;
+  const stationUrl = `${baseUrl()}/stations/${safeKey(key)}.wav`;
+  console.log(`[PA] playTerminalArrival ${lineId}/${lang} key=${key}`);
   const [prefixBuf, stationBuf] = await Promise.all([
     loadBuffer(prefixUrl),
     loadBuffer(stationUrl),
