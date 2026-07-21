@@ -72,6 +72,7 @@ export function detectLocale(){
   if(lang.startsWith('fr')) return 'fr';
   if(lang.startsWith('sv')) return 'sv';
   if(lang.startsWith('pt')) return 'pt';
+  if(lang.startsWith('zh')) return 'zh';
   return 'ja';
 }
 

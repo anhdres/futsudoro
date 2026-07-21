@@ -2,8 +2,10 @@
 // VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
-export const VERSION = '0.2.0';
-export const BUILD = '06a4de2';
+// 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
+//                     timer robustness (timestamp-based), zh translation added.
+export const VERSION = '0.3.0';
+export const BUILD = 'e909afc';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names
@@ -383,5 +385,21 @@ export const UI_STRINGS={
     about2:'Pomodoro é um método de gestão de tempo baseado em sessões de trabalho focado e pausas curtas.',
     about3:'Futsudoro é um temporizador pomodoro inspirado em trens para trabalho profundo, com modos Chronos (rígido) e Kairos (fluxo).',
     about4:'Feito com ❤️ + 🍀 por ishiroca + {anhdres}'
+  },
+  zh:{
+    start:'开始', stop:'暂停', paused:'已暂停', next:'下一站', resume:'继续', reset:'重置',
+    tabStats:'记录', tabTrip:'行程', tabSettings:'设置', tabAbout:'帮助',
+    travelLog:'记录', stops:'停靠站', today:'今日', allTime:'累计', min:'分',
+    tripConfig:'行程设置', work:'工作 (分)', break:'休息 (分)', longRest:'长休息 (分)',
+    systemSettings:'系统设置', mode:'模式', notifications:'通知', theme:'主题', language:'语言',
+    stationAnnouncements:'车站广播',
+    notifOn:'开', notifOff:'关',
+    light:'浅色', dark:'深色',
+    tripDuration:'到终点站的行程时间: {duration}',
+    confirmSwitchLine:'切换线路将重置当前会话。是否继续？',
+    about1:'日本的普通列车（futsū・普通）是沿线每站都停的各站停车列车。',
+    about2:'番茄工作法是基于专注工作与短暂休息交替的时间管理方法。',
+    about3:'Futsudoro 是一款以火车旅行为灵感的番茄计时器，专为深度工作设计，提供 Chronos（严格）和 Kairos（心流）两种模式。',
+    about4:'由 ishiroca + {anhdres} 用 ❤️ + 🍀 制作'
   }
 };
