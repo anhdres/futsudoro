@@ -40,7 +40,7 @@ VOICES = {
     "en": "English_CalmWoman",           # Andrés casting 2026-07-21 19:57 GMT-3
     "ja": "Japanese_CalmLady",
     "fr": "French_FemaleAnchor",
-    "de": "German_FriendlyMan",          # Andrés casting 2026-07-21 19:57 GMT-3
+    "de": "German_SweetLady",            # revertido a default (Andrés 2026-07-21 20:04)
     "it": "Italian_BraveHeroine",
     "sv": "English_SereneWoman",         # fallback — ver comentario arriba
     "zh": "Chinese (Mandarin)_Wise_Women", # Andrés casting 2026-07-21 19:57 GMT-3
