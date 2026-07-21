@@ -26,6 +26,71 @@ export let overtimeSeconds = 0;
 // Longrest completion timeout id (used to cancel pending fullReset on user reset)
 let longrestResetTimer = null;
 
+// Wake Lock — evita que el OS suspenda el thread de JS mientras el timer corre.
+// Crítico en mobile: si el browser entra en background, sin wake lock el
+// setInterval se throttlea/pausa y el timer puede quedar desfasado.
+// Andrés feedback 2026-07-21: timer quedaba en 00:01 al desbloquear el teléfono.
+let wakeLock = null;
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{
+    wakeLock = await navigator.wakeLock.request('screen');
+    // Si el wake lock se libera (ej. tab en background), re-pedir al volver.
+    wakeLock.addEventListener('release', () => {
+      wakeLock = null;
+      if(running && !document.hidden) requestWakeLock();
+    });
+  }catch(_e){
+    // Permiso denegado o feature no disponible. Degradamos gracefully.
+    wakeLock = null;
+  }
+}
+function releaseWakeLock(){
+  if(wakeLock){
+    try{ wakeLock.release(); }catch(_e){}
+    wakeLock = null;
+  }
+}
+
+// Re-sync de timer cuando el tab vuelve a visible. Corrige el drift acumulado
+// durante el background (donde setInterval se throttlea/pausa).
+// Andrés feedback 2026-07-21: al desbloquear el teléfono, el timer quedaba
+// en 00:01 sin avanzar. Causa: el último tick comprimido lleva timeLeft a 0,
+// dispara advancePhase(), pero el siguiente tick (también comprimido) corre
+// con timeLeft ya en 300 (rest) y lo decrementa mucho de golpe.
+let lastTickTime = Date.now();
+function resyncTimer(){
+  if(!running) return;
+  const now = Date.now();
+  const elapsedMs = now - lastTickTime;
+  // Si pasaron más de 5s sin tick, ajustar timeLeft.
+  if(elapsedMs > 5000){
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+    if(timeMode === 'kairos' && overtime){
+      // En overtime, solo sumar el tiempo perdido a overtimeSeconds.
+      overtimeSeconds += elapsedSec;
+    } else {
+      // Decrementar timeLeft por los segundos perdidos.
+      const newTimeLeft = timeLeft - elapsedSec;
+      if(newTimeLeft <= 0){
+        // El timer debió haber avanzado de fase durante el background.
+        // Disparar el camino completo del tick final manualmente.
+        timeLeft = 0;
+        clearInterval(ticker);
+        running = false;
+        if(phase === 'work') addWork(cfg.work);
+        const shouldContinue = advancePhase();
+        if(shouldContinue) startTimer();
+      } else {
+        timeLeft = newTimeLeft;
+      }
+    }
+    lastTickTime = now;
+    updDisplay();
+    updBtns();
+  }
+}
+
 // Setters for cross-module mutation
 export function setCurrentLine(next){ currentLine = normalizeLineKey(next); }
 export function setTimeMode(next){
@@ -152,6 +217,7 @@ export function advancePhase(){
 }
 
 export function tick(){
+  lastTickTime = Date.now();
   if(timeMode === 'kairos' && overtime){
     overtimeSeconds++;
     updDisplay();
@@ -183,6 +249,9 @@ export function startTimer(){
   if(running) return;
   running = true;
   ticker = setInterval(tick, 1000);
+  lastTickTime = Date.now();
+  // Wake Lock: pedir al OS que mantenga el thread activo (mobile).
+  if(!document.hidden) requestWakeLock();
   updDisplay();
   updBtns();
 }
@@ -191,6 +260,7 @@ export function pauseTimer(){
   if(!running) return;
   running = false;
   clearInterval(ticker);
+  releaseWakeLock();
   updDisplay();
   updBtns();
 }
@@ -208,6 +278,7 @@ export function fullReset(){
   timeLeft = cfg.work * 60;
   overtime = false;
   overtimeSeconds = 0;
+  lastTickTime = Date.now();
   buildStations();
   // Reset clock hands via updAnalogClock (acoplamiento DOM queda en ui.js).
   const tpEl = document.getElementById('trackProgress');
@@ -260,3 +331,21 @@ export function applyRouteFromPath(){
   if(routeLine) setCurrentLine(routeLine);
   if(routeMode) setTimeMode(routeMode);
 }
+
+// Re-sync timer + wake lock al cambiar visibilidad.
+// Andrés feedback 2026-07-21: timer quedaba trabado en 00:01 al desbloquear
+// el teléfono en mobile. Causa: setInterval se throttlea/pausa en background,
+// el último tick comprimido lleva timeLeft a 0 pero los siguientes corren
+// contra un timeLeft ya reseteado por advancePhase, generando drift.
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    // Tab entró en background — wake lock se libera automáticamente,
+    // pero podemos soltar el nuestro también para ahorrar batería.
+    releaseWakeLock();
+    return;
+  }
+  // Tab volvió a visible — primero re-sincronizar el timer (puede
+  // haber drift acumulado), luego re-pedir wake lock.
+  resyncTimer();
+  if(running) requestWakeLock();
+});
