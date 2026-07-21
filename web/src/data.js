@@ -14,7 +14,7 @@
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
 export const VERSION = '0.4.1';
-export const BUILD = 'e56650f';
+export const BUILD = '9ce552f';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names
