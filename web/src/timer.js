@@ -67,6 +67,10 @@ let lastTickTime = Date.now();
 // Andrés feedback 2026-07-21: 'directamente deja de contar el tiempo cuando
 // la app es minimizada o pasa al background' en Windows.
 let phaseStartedAt = Date.now();
+// Idem para overtime (modo Kairos): el overtimeSeconds se calcula desde
+// overtimeStartedAt, no se acumula por tick. Si el browser pausea los
+// timers durante horas, al volver el overtime refleja el tiempo real.
+let overtimeStartedAt = Date.now();
 function phaseDurationSec(){
   if(phase === 'work') return cfg.work * 60;
   if(phase === 'rest') return cfg.rest * 60;
@@ -77,6 +81,10 @@ function recomputeTimeLeft(){
   const elapsedSec = Math.floor((Date.now() - phaseStartedAt) / 1000);
   timeLeft = Math.max(0, phaseDurationSec() - elapsedSec);
 }
+function recomputeOvertime(){
+  const elapsedSec = Math.floor((Date.now() - overtimeStartedAt) / 1000);
+  overtimeSeconds = Math.max(0, elapsedSec);
+}
 function resyncTimer(){
   if(!running) return;
   const now = Date.now();
@@ -85,9 +93,8 @@ function resyncTimer(){
   // absoluto y disparar transición si corresponde.
   if(elapsedMs > 5000){
     if(timeMode === 'kairos' && overtime){
-      // En overtime, solo sumar el tiempo perdido a overtimeSeconds.
-      const elapsedSec = Math.floor(elapsedMs / 1000);
-      overtimeSeconds += elapsedSec;
+      // Recalcular overtimeSeconds desde timestamp absoluto.
+      recomputeOvertime();
     } else {
       // Recalcular desde phaseStartedAt (ignora timeLeft acumulado).
       recomputeTimeLeft();
@@ -152,6 +159,7 @@ export function addWorkFromPhase(){
 export function enterOvertime(){
   overtime = true;
   overtimeSeconds = 0;
+  overtimeStartedAt = Date.now();
   if(phase === 'work'){
     chimeArr();
     sendNotif('Futsu-doro', 'Preset complete. Continue or move to next stop.');
@@ -172,6 +180,7 @@ export function advancePhase(){
     currentJourney++;
     overtime = false;
     overtimeSeconds = 0;
+    overtimeStartedAt = Date.now();
     if(currentJourney >= cfg.journeys){
       phase = 'longrest';
       timeLeft = cfg.longRest * 60;
@@ -205,6 +214,7 @@ export function advancePhase(){
   if(phase === 'rest'){
     overtime = false;
     overtimeSeconds = 0;
+    overtimeStartedAt = Date.now();
     phase = 'work';
     timeLeft = cfg.work * 60;
     phaseStartedAt = Date.now();
@@ -237,7 +247,8 @@ export function advancePhase(){
 export function tick(){
   lastTickTime = Date.now();
   if(timeMode === 'kairos' && overtime){
-    overtimeSeconds++;
+    // Calcular overtimeSeconds desde timestamp absoluto (no acumular ticks).
+    recomputeOvertime();
     updDisplay();
     updBtns();
     return;
@@ -273,6 +284,7 @@ export function startTimer(){
   // Reset del timestamp de fase para que recomputeTimeLeft calcule desde ahora.
   // Importante cuando se llama después de un long background sin ticks.
   phaseStartedAt = Date.now();
+  overtimeStartedAt = Date.now();
   // Wake Lock: pedir al OS que mantenga el thread activo (mobile).
   if(!document.hidden) requestWakeLock();
   updDisplay();
@@ -302,6 +314,7 @@ export function fullReset(){
   phaseStartedAt = Date.now();
   overtime = false;
   overtimeSeconds = 0;
+  overtimeStartedAt = Date.now();
   lastTickTime = Date.now();
   buildStations();
   // Reset clock hands via updAnalogClock (acoplamiento DOM queda en ui.js).
