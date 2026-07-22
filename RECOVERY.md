@@ -11,7 +11,10 @@ Note: `futsudoro.com` did not resolve from the Mac during recovery; the active d
 
 ## Retrieved files
 
-Raw snapshot stored in `recovered-live/`:
+Raw snapshot was stored in `recovered-live/` (removed 2026-07-21 — the
+snapshot predates PA station announcements, robust timer, i18n en 10
+idiomas, y 9-line casting. `web/` ahora es la source of truth; el git
+history tiene todos los commits).
 
 - `index.html` — 64 KB production app with inline CSS/JS
 - localized about pages: `about.html`, `about-es.html`, `about-ja.html`, `about-zh.html`, `about-hi.html`, `about-de.html`, `about-fr.html`, `about-it.html`

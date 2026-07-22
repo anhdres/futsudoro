@@ -26,7 +26,6 @@ projects/Futsudoro/
 │   └── src/
 │       ├── styles.css
 │       └── app.js
-├── recovered-live/      # Raw snapshot pulled from production, keep as reference
 ├── assets/              # Original design/source assets that survived locally
 ├── references/          # Visual/reference material
 ├── futsudoro.md         # Project memory / product notes
