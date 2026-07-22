@@ -101,6 +101,7 @@ export function applyUIText(){
   set('labelMode', t('mode'));
   set('labelNotifications', t('notifications'));
   set('labelPa', t('stationAnnouncements'));
+  set('exportBtn', t('exportLabel'));
   set('labelTheme', t('theme'));
   set('labelLanguage', t('language'));
   set('aboutText1', t('about1'));
@@ -501,6 +502,14 @@ document.getElementById('paBtn').addEventListener('click', togglePa);
 
 document.getElementById('statsBtn').addEventListener('click', () => togglePanel('statsPanel'));
 document.getElementById('tripBtn').addEventListener('click', () => togglePanel('tripPanel'));
+const exportBtn = document.getElementById('exportBtn');
+const exportFormat = document.getElementById('exportFormat');
+if(exportBtn && exportFormat){
+  exportBtn.addEventListener('click', () => {
+    // Lazy import para no cargar el módulo de export en el bundle inicial.
+    import('./stats.js').then(m => m.exportStats(exportFormat.value));
+  });
+}
 document.getElementById('settingsBtn').addEventListener('click', () => togglePanel('settingsPanel'));
 document.getElementById('aboutBtn').addEventListener('click', () => togglePanel('aboutPanel'));
 

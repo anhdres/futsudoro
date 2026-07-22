@@ -8,6 +8,7 @@ import {
   loadTheme, loadMode, loadNotif, loadPa, setUiLocale, applyUIText as reapplyUIText
 } from './ui.js';
 import { loadStats } from './stats.js';
+import { VERSION, BUILD, BUILD_DATE } from './data.js';
 
 // Init sequence
 setUiLocale(detectLocale());
@@ -16,6 +17,11 @@ loadTheme();
 loadMode();
 loadNotif();
 loadPa();
+
+// Exponer versión para export y debugging desde la consola.
+if(typeof window !== 'undefined'){
+  window.futsudoroVersion = `${VERSION} · ${BUILD} · ${BUILD_DATE}`;
+}
 applyRouteFromPath();
 
 // Reflect URL-derived line state into the line UI.

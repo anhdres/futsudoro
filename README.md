@@ -27,7 +27,6 @@ projects/Futsudoro/
 │       ├── styles.css
 │       └── app.js
 ├── assets/              # Original design/source assets that survived locally
-├── references/          # Visual/reference material
 ├── futsudoro.md         # Project memory / product notes
 └── futsudoro-ideas-checklist.md
 ```

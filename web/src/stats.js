@@ -133,3 +133,60 @@ export function addWork(m){
   saveStats();
   updStatsUI();
 }
+
+// Export stats as CSV or JSON for download.
+// @serhack feedback 2026-07-21 22:48 GMT-3: pidió poder descargar las stats.
+// Formato:
+//   CSV: una fila por día con date,minutes. Hoy se incluye siempre (con
+//        0 si no se trabajó todavía).
+//   JSON: incluye stats completas + config actual del timer + metadata
+//         (versión, fecha de export).
+export function exportStats(format){
+  const today = new Date().toDateString();
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  let content, mimeType, filename;
+  if(format === 'json'){
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: (typeof window !== 'undefined' && window.futsudoroVersion) || 'unknown',
+      config: { work: cfg.work, rest: cfg.rest, journeys: cfg.journeys, longRest: cfg.longRest },
+      stats: {
+        today: stats.today,
+        total: stats.total,
+        lastDate: stats.lastDate,
+        history: [...stats.history]
+      }
+    };
+    content = JSON.stringify(payload, null, 2);
+    mimeType = 'application/json';
+    filename = `futsudoro-stats-${dateStamp}.json`;
+  } else {
+    // CSV default. Construir set completo de fechas (hoy + 30 días de history).
+    const seen = new Set();
+    const rows = [];
+    for(const h of stats.history){ rows.push([h.date, h.minutes]); seen.add(h.date); }
+    rows.push([today, stats.today]);
+    seen.add(today);
+    // Ordenar cronológicamente.
+    rows.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+    const lines = ['date,minutes'];
+    for(const [d, m] of rows) lines.push(`${d},${m}`);
+    content = lines.join('\n');
+    mimeType = 'text/csv';
+    filename = `futsudoro-stats-${dateStamp}.csv`;
+  }
+  triggerDownload(content, mimeType, filename);
+}
+
+function triggerDownload(content, mimeType, filename){
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Liberar el object URL después de un tick para que el click se procese.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

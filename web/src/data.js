@@ -2,6 +2,7 @@
 // VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
+// 0.5.0 — 2026-07-21: stats export (CSV/JSON) — @serhack feedback.
 // 0.4.1 — 2026-07-21: revert DE voice (SweetLady), regenerate ALL 99 wavs
 //                     (27 prefijos + 72 estaciones) con filter chain v5 para
 //                     asegurar consistencia (los anteriores eran hibridos
@@ -13,8 +14,8 @@
 //                     zh: Chinese (Mandarin)_Soft_Girl → Wise_Women
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
-export const VERSION = '0.4.1';
-export const BUILD = '23e3cda';
+export const VERSION = '0.5.0';
+export const BUILD = '03d251d';
 export const BUILD_DATE = '2026-07-21';
 
 // Line configurations with JP + Latin station names
@@ -261,6 +262,7 @@ export const UI_STRINGS={
     notifOn:'ON', notifOff:'OFF',
     light:'ライト', dark:'ダーク',
     tripDuration:'終点までの所要時間: {duration}',
+    exportLabel:'エクスポート',
     confirmSwitchLine:'路線を切り替えると進行中のセッションがリセットされます。よろしいですか？',
     about1:'日本の普通列車（futsū・普通）は、路線上のすべての駅に停車する各駅停車の列車です。',
     about2:'ポモドーロは、集中作業と短い休憩を繰り返す時間管理メソッドです。',
@@ -277,6 +279,7 @@ export const UI_STRINGS={
     notifOn:'ON', notifOff:'OFF',
     light:'Light', dark:'Dark',
     tripDuration:'Travel time to destination: {duration}',
+    exportLabel:'Export',
     confirmSwitchLine:'Switching lines will reset the current session. Continue?',
     about1:'A futsū (普通) train in Japan is a local service that stops at every station on its route.',
     about2:'Pomodoro is a time management method based on focused work sessions and short breaks.',
@@ -293,6 +296,7 @@ export const UI_STRINGS={
     notifOn:'SI', notifOff:'NO',
     light:'Claro', dark:'Oscuro',
     tripDuration:'Tiempo de viaje al destino: {duration}',
+    exportLabel:'Exportar',
     confirmSwitchLine:'Cambiar de línea reiniciará la sesión actual. ¿Continuar?',
     about1:'Un tren futsū (普通) en Japón es un servicio local que se detiene en todas las estaciones del recorrido.',
     about2:'Pomodoro es un método de gestión del tiempo basado en sesiones de trabajo enfocadas y descansos cortos.',
@@ -309,6 +313,7 @@ export const UI_STRINGS={
     notifOn:'SI', notifOff:'NO',
     light:'Chiaro', dark:'Scuro',
     tripDuration:'Tempo di viaggio fino al capolinea: {duration}',
+    exportLabel:'Esporta',
     confirmSwitchLine:'Cambiare linea resetterà la sessione attuale. Continuare?',
     about1:'Un treno futsū (普通) in Giappone è un servizio locale che si ferma in tutte le stazioni della linea.',
     about2:'Pomodoro è un metodo di gestione del tempo basato su sessioni di lavoro concentrato e brevi pause.',
@@ -325,6 +330,7 @@ export const UI_STRINGS={
     notifOn:'JA', notifOff:'NEIN',
     light:'Hell', dark:'Dunkel',
     tripDuration:'Fahrzeit bis zum Ziel: {duration}',
+    exportLabel:'Exportieren',
     confirmSwitchLine:'Linie wechseln setzt die aktuelle Sitzung zurück. Fortfahren?',
     about1:'Ein futsū-Zug (普通) in Japan ist ein Nahverkehrszug, der an jeder Station hält.',
     about2:'Pomodoro ist eine Zeitmanagement-Methode mit fokussierten Arbeitsphasen und kurzen Pausen.',
@@ -341,6 +347,7 @@ export const UI_STRINGS={
     notifOn:'हाँ', notifOff:'नहीं',
     light:'लाइट', dark:'डार्क',
     tripDuration:'गंतव्य तक यात्रा समय: {duration}',
+    exportLabel:'निर्यात',
     confirmSwitchLine:'लाइन बदलने से वर्तमान सत्र रीसेट हो जाएगा। जारी रखें?',
     about1:'जापान में futsū (普通) ट्रेन एक लोकल सेवा है जो अपने मार्ग के हर स्टेशन पर रुकती है।',
     about2:'Pomodoro समय प्रबंधन की एक विधि है जिसमें केंद्रित काम और छोटे ब्रेक शामिल होते हैं।',
@@ -357,6 +364,7 @@ export const UI_STRINGS={
     notifOn:'OUI', notifOff:'NON',
     light:'Clair', dark:'Sombre',
     tripDuration:'Temps de trajet jusqu’au terminus : {duration}',
+    exportLabel:'Exporter',
     confirmSwitchLine:'Changer de ligne réinitialisera la session en cours. Continuer ?',
     about1:'Un train futsū (普通) au Japon est un service local qui s’arrête à chaque station de la ligne.',
     about2:'Pomodoro est une méthode de gestion du temps basée sur des sessions de travail concentré et de courtes pauses.',
@@ -373,6 +381,7 @@ export const UI_STRINGS={
     notifOn:'JA', notifOff:'NEJ',
     light:'Ljust', dark:'Mörkt',
     tripDuration:'Restid till slutstation: {duration}',
+    exportLabel:'Exportera',
     confirmSwitchLine:'Att byta linje återställer den pågående sessionen. Fortsätt?',
     about1:'Ett futsū-tåg (普通) i Japan är en lokaltågslinje som stannar vid varje station.',
     about2:'Pomodoro är en metod för tidshantering med fokuserade arbetspass och korta pauser.',
@@ -389,6 +398,7 @@ export const UI_STRINGS={
     notifOn:'SIM', notifOff:'NÃO',
     light:'Claro', dark:'Escuro',
     tripDuration:'Tempo de viagem até o destino: {duration}',
+    exportLabel:'Exportar',
     confirmSwitchLine:'Mudar de linha vai reiniciar a sessão atual. Continuar?',
     about1:'Um trem futsū (普通) no Japão é um serviço local que para em todas as estações da linha.',
     about2:'Pomodoro é um método de gestão de tempo baseado em sessões de trabalho focado e pausas curtas.',
@@ -405,6 +415,7 @@ export const UI_STRINGS={
     notifOn:'开', notifOff:'关',
     light:'浅色', dark:'深色',
     tripDuration:'到终点站的行程时间: {duration}',
+    exportLabel:'导出',
     confirmSwitchLine:'切换线路将重置当前会话。是否继续？',
     about1:'日本的普通列车（futsū・普通）是沿线每站都停的各站停车列车。',
     about2:'番茄工作法是基于专注工作与短暂休息交替的时间管理方法。',
