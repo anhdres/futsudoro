@@ -101,7 +101,8 @@ export function applyUIText(){
   set('labelMode', t('mode'));
   set('labelNotifications', t('notifications'));
   set('labelPa', t('stationAnnouncements'));
-  set('exportBtn', t('exportLabel'));
+  set('exportBtn', t('backupLabel'));
+  set('importBtn', t('importLabel'));
   set('labelTheme', t('theme'));
   set('labelLanguage', t('language'));
   set('aboutText1', t('about1'));
@@ -508,6 +509,30 @@ if(exportBtn && exportFormat){
   exportBtn.addEventListener('click', () => {
     // Lazy import para no cargar el módulo de export en el bundle inicial.
     import('./stats.js').then(m => m.exportStats(exportFormat.value));
+  });
+}
+const importBtn = document.getElementById('importBtn');
+if(importBtn){
+  importBtn.addEventListener('click', () => {
+    // Crear input file temporal para seleccionar el JSON backup.
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json,.json';
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const text = String(reader.result);
+          import('./stats.js').then(m => m.importStats(text));
+        }catch(e){
+          alert('Error reading backup file: ' + e.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
   });
 }
 document.getElementById('settingsBtn').addEventListener('click', () => togglePanel('settingsPanel'));

@@ -6,7 +6,8 @@
 import { LINES } from './data.js';
 import { normalizeLineKey, getStationsFor } from './util.js';
 import { chimeGo, chimeArr, chimeLong, chimeEnd, playArrival, playDeparture, playTerminalArrival } from './audio.js';
-import { addWork } from './stats.js';
+import { addWork, addTravelTime, addStationTime } from './stats.js';
+import { markVisited } from './stamps.js';
 import { updDisplay, updBtns, buildStations, sendNotif } from './ui.js';
 
 // State (mutable within this module, read-only to importers)
@@ -203,8 +204,13 @@ export function advancePhase(){
       // Delay 1.5s para que el chime termine antes (no overlap).
       // Bug fix 2026-07-21: stationName es la NUEVA estación a la que llegamos
       // (currentJourney ya se incrementó arriba).
+      // Marcar la estación como visitada (librito de estampillas, futuro).
+      // Se llama SIEMPRE, independientemente del toggle PA — la visita al
+      // andén es independiente del anuncio audible.
+      const stationEntry = getStationsFor(currentLine)[currentJourney];
+      const visitedStation = stationEntry.en || stationEntry.jp;
+      if(visitedStation) markVisited(currentLine, visitedStation);
       if(paEnabled()){
-        const stationEntry = getStationsFor(currentLine)[currentJourney];
         setTimeout(() => playArrival(currentLine, stationEntry), 1500);
       }
       sendNotif('Futsu-doro', 'At station ' + getStationsFor(currentLine)[currentJourney].jp + '. ' + cfg.rest + ' min rest.');
@@ -266,7 +272,8 @@ export function tick(){
     }
     clearInterval(ticker);
     running = false;
-    if(phase === 'work') addWork(cfg.work);
+    if(phase === 'work') addTravelTime(cfg.work * 60);
+    else if(phase === 'rest') addStationTime(cfg.rest * 60);
     const shouldContinue = advancePhase();
     if(shouldContinue) startTimer();
     updDisplay();

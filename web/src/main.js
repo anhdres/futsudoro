@@ -8,11 +8,13 @@ import {
   loadTheme, loadMode, loadNotif, loadPa, setUiLocale, applyUIText as reapplyUIText
 } from './ui.js';
 import { loadStats } from './stats.js';
+import { loadStamps } from './stamps.js';
 import { VERSION, BUILD, BUILD_DATE } from './data.js';
 
 // Init sequence
 setUiLocale(detectLocale());
 loadStats();
+loadStamps();
 loadTheme();
 loadMode();
 loadNotif();

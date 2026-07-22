@@ -1,11 +1,17 @@
 // Stats persistence + sparkline render. Owns the `stats` object.
 import { currentJourney, cfg } from './timer.js';
+import { getStampsByLine } from './stamps.js';
 
 export let stats = {
   today: 0,
   total: 0,
   lastDate: new Date().toDateString(),
-  history: []
+  history: [],
+  // @serhack + @andrés feedback 2026-07-21 22:48: tiempo separado por tipo
+  // (work = tiempo de viaje / rest = tiempo en estaciones). En segundos
+  // para que el JSON export tenga precisión sub-minuto.
+  travelTimeSec: 0,
+  stationTimeSec: 0
 };
 
 // Cache para evitar re-render del sparkline cada tick (llamado desde
@@ -134,6 +140,30 @@ export function addWork(m){
   updStatsUI();
 }
 
+// Tiempo de viaje (work block). Andrés feedback 2026-07-21 22:48: separar
+// travel time de station time para el backup y futuro librito de estampillas.
+// Mantiene today/total en sincronía (sumados desde travelTimeSec para que
+// el sparkline y el panel Stats no se rompan).
+export function addTravelTime(seconds){
+  stats.travelTimeSec = (stats.travelTimeSec || 0) + seconds;
+  // Acumular minutos al today/total (en el día actual). Para mantener
+  // la UI funcionando como antes: today es minutos del día, total es
+  // minutos históricos totales.
+  const minutes = Math.round(seconds / 60);
+  stats.today += minutes;
+  stats.total += minutes;
+  saveStats();
+  updStatsUI();
+}
+
+// Tiempo en estaciones (rest block). today/total NO se actualizan acá
+// porque el trabajo (work) es el que cuenta como "productivo".
+export function addStationTime(seconds){
+  stats.stationTimeSec = (stats.stationTimeSec || 0) + seconds;
+  saveStats();
+  updStatsUI();
+}
+
 // Export stats as CSV or JSON for download.
 // @serhack feedback 2026-07-21 22:48 GMT-3: pidió poder descargar las stats.
 // Formato:
@@ -154,8 +184,12 @@ export function exportStats(format){
         today: stats.today,
         total: stats.total,
         lastDate: stats.lastDate,
+        travelTimeSec: stats.travelTimeSec || 0,
+        stationTimeSec: stats.stationTimeSec || 0,
         history: [...stats.history]
-      }
+      },
+      // Estaciones visitadas (base para el futuro librito de estampillas).
+      stamps: getStampsByLine()
     };
     content = JSON.stringify(payload, null, 2);
     mimeType = 'application/json';
@@ -189,4 +223,54 @@ function triggerDownload(content, mimeType, filename){
   document.body.removeChild(a);
   // Liberar el object URL después de un tick para que el click se procese.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Import: lee el contenido de un archivo de backup (.json) y restaura
+// stats + stamps en localStorage. Valida estructura antes de aplicar.
+// El config NO se restaura (es local del device), solo stats y stamps.
+export function importStats(jsonText){
+  let payload;
+  try{ payload = JSON.parse(jsonText); }
+  catch(e){ throw new Error('JSON inválido: ' + e.message); }
+  if(!payload || typeof payload !== 'object'){
+    throw new Error('Backup no es un objeto JSON válido');
+  }
+  if(!payload.stats || typeof payload.stats !== 'object'){
+    throw new Error('Backup no tiene sección "stats"');
+  }
+  // Validar campos mínimos de stats.
+  const s = payload.stats;
+  if(typeof s.total !== 'number' || typeof s.today !== 'number'){
+    throw new Error('Stats incompletas o corruptas');
+  }
+  // Restaurar stats (preservar claves que el backup viejo no tiene).
+  stats = {
+    today: s.today || 0,
+    total: s.total || 0,
+    lastDate: s.lastDate || new Date().toDateString(),
+    history: Array.isArray(s.history) ? [...s.history] : [],
+    travelTimeSec: s.travelTimeSec || 0,
+    stationTimeSec: s.stationTimeSec || 0
+  };
+  saveStats();
+  // Restaurar stamps si están en el backup.
+  if(payload.stamps && typeof payload.stamps === 'object'){
+    // Convertir formato {line: [{name, visitedAt}]} → {line:name: isoTs}
+    const flat = {};
+    for(const [line, items] of Object.entries(payload.stamps)){
+      if(!Array.isArray(items)) continue;
+      for(const item of items){
+        if(item && item.name && item.visitedAt){
+          flat[`${line}:${item.name}`] = item.visitedAt;
+        }
+      }
+    }
+    // Importar via setStamps (lazy import para no cycle).
+    import('./stamps.js').then(m => {
+      m.setStamps(flat);
+      updStatsUI();
+    });
+  } else {
+    updStatsUI();
+  }
 }
