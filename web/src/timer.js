@@ -4,11 +4,11 @@
 // other modules go through the setter helpers below (re-exporting a `let`
 // makes it read-only to importers).
 import { LINES } from './data.js';
-import { normalizeLineKey, getStationsFor } from './util.js';
+import { normalizeLineKey, getStationsFor, fmt } from './util.js';
 import { chimeGo, chimeArr, chimeLong, chimeEnd, playArrival, playDeparture, playTerminalArrival } from './audio.js';
 import { addWork, addTravelTime, addStationTime } from './stats.js';
 import { markVisited } from './stamps.js';
-import { updDisplay, updBtns, buildStations, sendNotif } from './ui.js';
+import { updDisplay, updBtns, buildStations, sendNotif, t } from './ui.js';
 
 // State (mutable within this module, read-only to importers)
 export let currentLine = 'yamanote';
@@ -130,6 +130,26 @@ export function setOvertime(next){ overtime = next; }
 export function setOvertimeSeconds(next){ overtimeSeconds = next; }
 export function setCfg(next){ cfg = next; }
 
+// Title sync — actualiza document.title con timer + status localizado.
+// Formato: "Futsudoro MM:SS - <transit|station>" o "Futsudoro" (idle).
+// Funciona en browser tab title + PWA window title (Chromium standalone).
+export function syncTitle(){
+  const idle = !hasStarted && !running;
+  if(idle){
+    document.title = 'Futsudoro';
+    return;
+  }
+  const showOvertime = timeMode === 'kairos' && overtime;
+  const time = fmt(showOvertime ? overtimeSeconds : timeLeft);
+  const stationPhase = phase === 'rest' || phase === 'longrest';
+  const statusKey = stationPhase ? 'titleStation' : 'titleTransit';
+  const status = t(statusKey);
+  const waitingKairos = showOvertime && !running;
+  const isPaused = !running && !waitingKairos;
+  const pauseTag = isPaused ? ' ⏸' : '';
+  document.title = `Futsudoro ${time} - ${status}${pauseTag}`;
+}
+
 // PA setting — leído desde localStorage. Default ON.
 // Andrés feedback (2026-07-21): default ON, el toggle lo apaga si molesta.
 export function paEnabled(){
@@ -161,6 +181,7 @@ export function enterOvertime(){
   overtime = true;
   overtimeSeconds = 0;
   overtimeStartedAt = Date.now();
+  syncTitle();
   if(phase === 'work'){
     chimeArr();
     sendNotif('Futsu-doro', 'Preset complete. Continue or move to next stop.');
@@ -177,6 +198,7 @@ export function enterOvertime(){
 }
 
 export function advancePhase(){
+  syncTitle();
   if(phase === 'work'){
     currentJourney++;
     overtime = false;
@@ -257,6 +279,7 @@ export function tick(){
     recomputeOvertime();
     updDisplay();
     updBtns();
+    syncTitle();
     return;
   }
   // Calcular timeLeft desde timestamp absoluto (no acumular ticks).
@@ -268,6 +291,7 @@ export function tick(){
       enterOvertime();
       updDisplay();
       updBtns();
+      syncTitle();
       return;
     }
     clearInterval(ticker);
@@ -278,9 +302,11 @@ export function tick(){
     if(shouldContinue) startTimer();
     updDisplay();
     updBtns();
+    syncTitle();
     return;
   }
   updDisplay();
+  syncTitle();
 }
 
 export function startTimer(){
@@ -296,6 +322,7 @@ export function startTimer(){
   if(!document.hidden) requestWakeLock();
   updDisplay();
   updBtns();
+  syncTitle();
 }
 
 export function pauseTimer(){
@@ -305,6 +332,7 @@ export function pauseTimer(){
   releaseWakeLock();
   updDisplay();
   updBtns();
+  syncTitle();
 }
 
 export function fullReset(){
@@ -338,6 +366,7 @@ export function fullReset(){
   if(sh) sh.style.transform = 'rotate(0deg)';
   if(mh) mh.style.transform = 'rotate(0deg)';
   if(hh) hh.style.transform = 'rotate(0deg)';
+  syncTitle();
 }
 
 export function applyCfg(){

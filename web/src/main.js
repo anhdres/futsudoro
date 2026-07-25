@@ -1,7 +1,7 @@
 // Entry point. Imports every module and runs the init sequence.
 import { LINES } from './data.js';
 import { syncRoute } from './util.js';
-import { currentLine, timeMode, applyRouteFromPath } from './timer.js';
+import { currentLine, timeMode, applyRouteFromPath, syncTitle } from './timer.js';
 import {
   detectLocale, applyUIText, buildStations, updDisplay, updBtns,
   updModeBtn, updTripDurationNote, updNotifBtn, startClock, updAnalogClock,
@@ -46,6 +46,7 @@ updBtns();
 updNotifBtn();
 updTripDurationNote();
 startClock();
+syncTitle();
 
 // Re-leer la URL cuando el user usa back/forward. Sin esto, la URL cambia
 // pero currentLine/timeMode quedan stale y la barra muestra una cosa

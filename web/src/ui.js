@@ -20,7 +20,7 @@ import {
   hasStarted, overtime, overtimeSeconds, currentJourney, clockTicker,
   setCurrentLine, setTimeMode, setHasStarted, setTimeLeft, setPhase,
   setClockTicker, startTimer, pauseTimer, fullReset, applyCfg,
-  advancePhase, addWorkFromPhase
+  advancePhase, addWorkFromPhase, syncTitle
 } from './timer.js';
 
 // UI-owned state
@@ -132,6 +132,7 @@ export function setLocale(next){
   setUiLocale(next);
   try { localStorage.setItem('futsuUiLocale', next); } catch(_e){}
   applyUIText();
+  syncTitle();
 }
 
 export function selectLine(lineKey){
