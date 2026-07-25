@@ -2,6 +2,11 @@
 // VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
+// 0.6.2 — 2026-07-25: kairos flow state — braille spinner in title.
+//                     - Replace time-based title with animated spinner +
+//                       localized "flowing" word when kairos preset is fulfilled.
+//                     - 10 frames braille (1Hz), no time tracking visible.
+//                     - Concept: no decimal time — permission to stop.
 // 0.6.1 — 2026-07-24: dynamic document.title (browser tab + PWA window).
 //                     - Format: "Futsudoro MM:SS - <transit|station>" (10 locales)
 //                     - Idle: "Futsudoro". Paused: ⏸. Overtime (kairos): same format.
@@ -27,9 +32,9 @@
 //                     zh: Chinese (Mandarin)_Soft_Girl → Wise_Women
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
-export const VERSION = '0.6.1';
-export const BUILD = '79322b2';
-export const BUILD_DATE = '2026-07-24';
+export const VERSION = '0.6.2';
+export const BUILD = '808b1e3';
+export const BUILD_DATE = '2026-07-25';
 
 // Line configurations with JP + Latin station names
 export const LINES={
@@ -283,7 +288,8 @@ export const UI_STRINGS={
     about3:'Futsudoro は、列車の旅をモチーフにした深い集中のためのポモドーロタイマーです。Chronos（厳密）と Kairos（フロー重視）の2つのモードがあります。',
     about4:'❤️ + 🍀 ishiroca + {anhdres} による',
     titleTransit:'運行中',
-    titleStation:'停車中'
+    titleStation:'停車中',
+    kairosFlowing:'流れ'
   },
   en:{
     start:'Start', stop:'Pause', paused:'Paused', next:'Next', resume:'Resume', reset:'Reset',
@@ -303,7 +309,8 @@ export const UI_STRINGS={
     about3:'Futsudoro is a train pomodoro timer for deep work, with Chronos (strict timing) and Kairos (flow-friendly) modes.',
     about4:'Made with ❤️ + 🍀 by ishiroca + {anhdres}',
     titleTransit:'in transit',
-    titleStation:'at station'
+    titleStation:'at station',
+    kairosFlowing:'flowing'
   },
   es:{
     start:'Iniciar', stop:'Pausar', paused:'En pausa', next:'Siguiente', resume:'Retomar', reset:'Reiniciar',
@@ -323,7 +330,8 @@ export const UI_STRINGS={
     about3:'Futsudoro es un temporizador pomodoro inspirado en trenes para trabajo profundo, con modos Chronos (estricto) y Kairos (fluido).',
     about4:'Hecho con ❤️ + 🍀 por ishiroca + {anhdres}',
     titleTransit:'en tránsito',
-    titleStation:'en estación'
+    titleStation:'en estación',
+    kairosFlowing:'fluyendo'
   },
   it:{
     start:'Avvia', stop:'Pausa', paused:'In pausa', next:'Avanti', resume:'Riprendi', reset:'Reimposta',
@@ -343,7 +351,8 @@ export const UI_STRINGS={
     about3:'Futsudoro è un timer pomodoro ispirato ai treni per il lavoro profondo, con modalità Chronos (rigida) e Kairos (fluida).',
     about4:'Creato con ❤️ + 🍀 da ishiroca + {anhdres}',
     titleTransit:'in transito',
-    titleStation:'in stazione'
+    titleStation:'in stazione',
+    kairosFlowing:'flusso'
   },
   de:{
     start:'Los', stop:'Pause', paused:'Pausiert', next:'Weiter', resume:'Fortsetzen', reset:'Zurücksetzen',
@@ -363,7 +372,8 @@ export const UI_STRINGS={
     about3:'Futsudoro ist ein zug-inspirierter Pomodoro-Timer für Deep Work mit Chronos- (streng) und Kairos-Modus (flow-freundlich).',
     about4:'Mit ❤️ + 🍀 von ishiroca + {anhdres}',
     titleTransit:'unterwegs',
-    titleStation:'im Bahnhof'
+    titleStation:'im Bahnhof',
+    kairosFlowing:'Fluss'
   },
   hi:{
     start:'शुरू', stop:'रोकें', paused:'रुका हुआ', next:'अगला', resume:'जारी रखें', reset:'रीसेट',
@@ -383,7 +393,8 @@ export const UI_STRINGS={
     about3:'Futsudoro एक ट्रेन-प्रेरित Pomodoro टाइमर है, गहरे काम के लिए, जिसमें Chronos (सख्त) और Kairos (लचीला) मोड हैं।',
     about4:'❤️ + 🍀 के साथ ishiroca + {anhdres} द्वारा बनाया गया',
     titleTransit:'चल रहा है',
-    titleStation:'स्टेशन पर'
+    titleStation:'स्टेशन पर',
+    kairosFlowing:'बहता'
   },
   fr:{
     start:'Démarrer', stop:'Pause', paused:'En pause', next:'Suivant', resume:'Reprendre', reset:'Réinitialiser',
@@ -403,7 +414,8 @@ export const UI_STRINGS={
     about3:'Futsudoro est un minuteur pomodoro inspiré des trains pour le travail profond, avec les modes Chronos (strict) et Kairos (fluide).',
     about4:'Créé avec ❤️ + 🍀 par ishiroca + {anhdres}',
     titleTransit:'en circulation',
-    titleStation:'à quai'
+    titleStation:'à quai',
+    kairosFlowing:'écoulement'
   },
   sv:{
     start:'Starta', stop:'Pausa', paused:'Pausad', next:'Nästa', resume:'Fortsätt', reset:'Återställ',
@@ -423,7 +435,8 @@ export const UI_STRINGS={
     about3:'Futsudoro är en tåg-inspirerad pomodoro-timer för djupt arbete med lägena Chronos (strikt) och Kairos (flödesvänligt).',
     about4:'Skapad med ❤️ + 🍀 av ishiroca + {anhdres}',
     titleTransit:'i rörelse',
-    titleStation:'på station'
+    titleStation:'på station',
+    kairosFlowing:'flöde'
   },
   pt:{
     start:'Iniciar', stop:'Pausar', paused:'Em pausa', next:'Próximo', resume:'Retomar', reset:'Reiniciar',
@@ -443,7 +456,8 @@ export const UI_STRINGS={
     about3:'Futsudoro é um temporizador pomodoro inspirado em trens para trabalho profundo, com modos Chronos (rígido) e Kairos (fluxo).',
     about4:'Feito com ❤️ + 🍀 por ishiroca + {anhdres}',
     titleTransit:'em trânsito',
-    titleStation:'na estação'
+    titleStation:'na estação',
+    kairosFlowing:'fluindo'
   },
   zh:{
     start:'开始', stop:'暂停', paused:'已暂停', next:'下一站', resume:'继续', reset:'重置',
@@ -463,6 +477,7 @@ export const UI_STRINGS={
     about3:'Futsudoro 是一款以火车旅行为灵感的番茄计时器，专为深度工作设计，提供 Chronos（严格）和 Kairos（心流）两种模式。',
     about4:'由 ishiroca + {anhdres} 用 ❤️ + 🍀 制作',
     titleTransit:'运行中',
-    titleStation:'到站'
+    titleStation:'到站',
+    kairosFlowing:'流转'
   }
 };

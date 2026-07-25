@@ -27,6 +27,14 @@ export let overtimeSeconds = 0;
 // Longrest completion timeout id (used to cancel pending fullReset on user reset)
 let longrestResetTimer = null;
 
+// Braille spinner para el title en kairos-overtime (modo flow). Indica que
+// el preset está cumplido y el user tiene permiso de levantarse, sin mostrar
+// el tiempo transcurrido. Andrés feedback 2026-07-24: en kairos no querés
+// saber "cuanto" te pasaste, solo que ya está OK parar.
+const SPINNER_FRAMES = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+let currentSpinnerFrame = 0;
+let spinnerTicker = null;
+
 // Wake Lock — evita que el OS suspenda el thread de JS mientras el timer corre.
 // Crítico en mobile: si el browser entra en background, sin wake lock el
 // setInterval se throttlea/pausa y el timer puede quedar desfasado.
@@ -131,7 +139,11 @@ export function setOvertimeSeconds(next){ overtimeSeconds = next; }
 export function setCfg(next){ cfg = next; }
 
 // Title sync — actualiza document.title con timer + status localizado.
-// Formato: "Futsudoro MM:SS - <transit|station>" o "Futsudoro" (idle).
+// Formato:
+//   idle:           "Futsudoro"
+//   work/rest:      "Futsudoro MM:SS - <transit|station>"
+//   paused:         "Futsudoro MM:SS - <status> ⏸"
+//   kairos flow:    "Futsudoro ⠋ flowing" (spinner animado, sin tiempo)
 // Funciona en browser tab title + PWA window title (Chromium standalone).
 export function syncTitle(){
   const idle = !hasStarted && !running;
@@ -139,15 +151,41 @@ export function syncTitle(){
     document.title = 'Futsudoro';
     return;
   }
-  const showOvertime = timeMode === 'kairos' && overtime;
-  const time = fmt(showOvertime ? overtimeSeconds : timeLeft);
+  // Kairos flow: preset cumplido, no mostrar tiempo — solo spinner + "flowing".
+  // Indica que el user ya tiene permiso de levantarse, sin distraer con números.
+  if(timeMode === 'kairos' && overtime){
+    const spinnerChar = SPINNER_FRAMES[currentSpinnerFrame];
+    const flowingText = t('kairosFlowing');
+    document.title = `Futsudoro ${spinnerChar} ${flowingText}`;
+    return;
+  }
   const stationPhase = phase === 'rest' || phase === 'longrest';
   const statusKey = stationPhase ? 'titleStation' : 'titleTransit';
   const status = t(statusKey);
-  const waitingKairos = showOvertime && !running;
-  const isPaused = !running && !waitingKairos;
+  const time = fmt(timeLeft);
+  const isPaused = !running;
   const pauseTag = isPaused ? ' ⏸' : '';
   document.title = `Futsudoro ${time} - ${status}${pauseTag}`;
+}
+
+// Spinner ticker — solo corre durante kairos-overtime (flow state).
+// 1 frame por segundo: ritmo meditativo, no distrae.
+function startSpinnerTicker(){
+  if(spinnerTicker) return;
+  currentSpinnerFrame = 0;
+  spinnerTicker = setInterval(() => {
+    currentSpinnerFrame = (currentSpinnerFrame + 1) % SPINNER_FRAMES.length;
+    syncTitle();
+  }, 1000);
+  syncTitle(); // first frame immediate
+}
+
+function stopSpinnerTicker(){
+  if(spinnerTicker){
+    clearInterval(spinnerTicker);
+    spinnerTicker = null;
+  }
+  currentSpinnerFrame = 0;
 }
 
 // PA setting — leído desde localStorage. Default ON.
@@ -181,7 +219,7 @@ export function enterOvertime(){
   overtime = true;
   overtimeSeconds = 0;
   overtimeStartedAt = Date.now();
-  syncTitle();
+  startSpinnerTicker();
   if(phase === 'work'){
     chimeArr();
     sendNotif('Futsu-doro', 'Preset complete. Continue or move to next stop.');
@@ -198,6 +236,7 @@ export function enterOvertime(){
 }
 
 export function advancePhase(){
+  stopSpinnerTicker();
   syncTitle();
   if(phase === 'work'){
     currentJourney++;
@@ -366,6 +405,7 @@ export function fullReset(){
   if(sh) sh.style.transform = 'rotate(0deg)';
   if(mh) mh.style.transform = 'rotate(0deg)';
   if(hh) hh.style.transform = 'rotate(0deg)';
+  stopSpinnerTicker();
   syncTitle();
 }
 
