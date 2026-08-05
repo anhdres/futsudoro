@@ -1,9 +1,13 @@
 // Stats persistence + sparkline render. Owns the `stats` object.
 import { currentJourney, cfg } from './timer.js';
+import { fmtDuration } from './util.js';
 import { getStampsByLine } from './stamps.js';
 
 export let stats = {
   today: 0,
+  // Minutos de descanso HOY (work vs rest breakdown en el panel).
+  // Se resetea junto con `today` en rolloverStats.
+  todayStationTime: 0,
   total: 0,
   lastDate: new Date().toDateString(),
   history: [],
@@ -42,6 +46,7 @@ export function loadStats(){
     }
   }
   if(!stats.history) stats.history = [];
+  if(typeof stats.todayStationTime !== 'number') stats.todayStationTime = 0;
   // Invalidate cache so the next renderSparkline call does a full repaint.
   sparklineCache.lastHistoryLen = -1;
   updStatsUI();
@@ -54,6 +59,7 @@ function rolloverStats(todayKey){
     if(stats.history.length > 30) stats.history = stats.history.slice(-30);
   }
   stats.today = 0;
+  stats.todayStationTime = 0;
   stats.lastDate = todayKey;
 }
 
@@ -76,12 +82,35 @@ export function startRolloverChecker(){
   }, 60000);
 }
 
+// Stats panel rework (Andrés 2026-08-05): trabajo vs descanso por período
+// (today / all time) + barra única con proporciones. Stops counter y
+// sparkline removidos (stops no era útil, sparkline separado del foco).
 export function updStatsUI(){
-  document.getElementById('stToday').textContent = stats.today;
-  document.getElementById('stTotal').textContent = stats.total;
-  document.getElementById('curJ').textContent = Math.min(currentJourney + 1, cfg.journeys);
-  document.getElementById('totJ').textContent = cfg.journeys;
-  renderSparklineIfChanged();
+  // Today — minutos directos (work acumulado) + descanso de hoy.
+  setText('todayTravel', fmtDuration(Math.round(stats.today || 0)));
+  setText('todayRest', fmtDuration(Math.round(stats.todayStationTime || 0)));
+  // All time — segundos → minutos redondeados.
+  setText('allTravel', fmtDuration(Math.round((stats.travelTimeSec || 0) / 60)));
+  setText('allRest', fmtDuration(Math.round((stats.stationTimeSec || 0) / 60)));
+  // Barra única — proporciones all-time work (verde) vs rest (rojo).
+  const workSec = stats.travelTimeSec || 0;
+  const restSec = stats.stationTimeSec || 0;
+  const totalSec = workSec + restSec;
+  // Sin datos: barra toda verde como fallback visual (work-only).
+  const workPct = totalSec > 0 ? (workSec / totalSec) * 100 : 100;
+  const restPct = Math.max(0, 100 - workPct);
+  setWidth('statsProgressWork', workPct);
+  setWidth('statsProgressRest', restPct);
+}
+
+function setText(id, text){
+  const el = document.getElementById(id);
+  if(el) el.textContent = text;
+}
+
+function setWidth(id, pct){
+  const el = document.getElementById(id);
+  if(el) el.style.width = pct.toFixed(2) + '%';
 }
 
 function renderSparklineIfChanged(){
@@ -156,10 +185,13 @@ export function addTravelTime(seconds){
   updStatsUI();
 }
 
-// Tiempo en estaciones (rest block). today/total NO se actualizan acá
-// porque el trabajo (work) es el que cuenta como "productivo".
+// Tiempo en estaciones (rest block). El total "productivo" (total) NO se
+// toca acá porque solo el work cuenta. Pero acumulamos todayStationTime
+// (en minutos) para que el panel muestre "Today / time rested".
 export function addStationTime(seconds){
   stats.stationTimeSec = (stats.stationTimeSec || 0) + seconds;
+  const minutes = Math.round(seconds / 60);
+  stats.todayStationTime = (stats.todayStationTime || 0) + minutes;
   saveStats();
   updStatsUI();
 }
@@ -182,6 +214,7 @@ export function exportStats(format){
       config: { work: cfg.work, rest: cfg.rest, journeys: cfg.journeys, longRest: cfg.longRest },
       stats: {
         today: stats.today,
+        todayStationTime: stats.todayStationTime || 0,
         total: stats.total,
         lastDate: stats.lastDate,
         travelTimeSec: stats.travelTimeSec || 0,
@@ -246,6 +279,7 @@ export function importStats(jsonText){
   // Restaurar stats (preservar claves que el backup viejo no tiene).
   stats = {
     today: s.today || 0,
+    todayStationTime: s.todayStationTime || 0,
     total: s.total || 0,
     lastDate: s.lastDate || new Date().toDateString(),
     history: Array.isArray(s.history) ? [...s.history] : [],

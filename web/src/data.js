@@ -33,7 +33,7 @@
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
 export const VERSION = '0.6.2';
-export const BUILD = '512ae43';
+export const BUILD = '2834122';
 export const BUILD_DATE = '2026-08-05';
 
 // Line configurations with JP + Latin station names
@@ -274,6 +274,7 @@ export const UI_STRINGS={
     start:'開始', stop:'一時停止', paused:'一時停止中', next:'次へ', resume:'再開', reset:'終点',
     tabStats:'記録', tabTrip:'行程', tabSettings:'設定', tabAbout:'ヘルプ',
     travelLog:'記録', stops:'停車駅', today:'今日', allTime:'累計', min:'分',
+    timeTravelled:'移動時間', timeRested:'休憩時間',
     tripConfig:'行程設定', work:'作業（分）', break:'休憩（分）', longRest:'長い休憩（分）',
     systemSettings:'システム設定', mode:'モード', notifications:'通知', theme:'テーマ', language:'言語',
     stationAnnouncements:'駅アナウンス',
@@ -296,6 +297,7 @@ export const UI_STRINGS={
     start:'Start', stop:'Pause', paused:'Paused', next:'Next', resume:'Resume', reset:'Reset',
     tabStats:'Log', tabTrip:'Trip', tabSettings:'Settings', tabAbout:'Help',
     travelLog:'Log', stops:'Stops', today:'Today', allTime:'All Time', min:'min',
+    timeTravelled:'Time travelled', timeRested:'Time rested',
     tripConfig:'Trip Configuration', work:'Work (min)', break:'Break (min)', longRest:'Long Break (min)',
     systemSettings:'System Settings', mode:'Mode', notifications:'Notifications', theme:'Theme', language:'Language',
     stationAnnouncements:'Station Announcements',
@@ -318,6 +320,7 @@ export const UI_STRINGS={
     start:'Iniciar', stop:'Pausar', paused:'En pausa', next:'Siguiente', resume:'Retomar', reset:'Reiniciar',
     tabStats:'Diario', tabTrip:'Viaje', tabSettings:'Ajustes', tabAbout:'Ayuda',
     travelLog:'Diario', stops:'Paradas', today:'Hoy', allTime:'Total', min:'min',
+    timeTravelled:'Tiempo de viaje', timeRested:'Tiempo de descanso',
     tripConfig:'Configuración del viaje', work:'Trabajo (min)', break:'Descanso (min)', longRest:'Descanso largo (min)',
     systemSettings:'Ajustes del sistema', mode:'Modo', notifications:'Notificaciones', theme:'Tema', language:'Idioma',
     stationAnnouncements:'Anuncios de estación',
@@ -340,6 +343,7 @@ export const UI_STRINGS={
     start:'Avvia', stop:'Pausa', paused:'In pausa', next:'Avanti', resume:'Riprendi', reset:'Reimposta',
     tabStats:'Diario', tabTrip:'Viaggio', tabSettings:'Opzioni', tabAbout:'Aiuto',
     travelLog:'Diario', stops:'Fermate', today:'Oggi', allTime:'Totale', min:'min',
+    timeTravelled:'Tempo di viaggio', timeRested:'Tempo di riposo',
     tripConfig:'Configurazione viaggio', work:'Lavoro (min)', break:'Pausa (min)', longRest:'Pausa lunga (min)',
     systemSettings:'Impostazioni sistema', mode:'Modalità', notifications:'Notifiche', theme:'Tema', language:'Lingua',
     stationAnnouncements:'Annunci di stazione',
@@ -362,6 +366,7 @@ export const UI_STRINGS={
     start:'Los', stop:'Pause', paused:'Pausiert', next:'Weiter', resume:'Fortsetzen', reset:'Zurücksetzen',
     tabStats:'Log', tabTrip:'Fahrt', tabSettings:'Optionen', tabAbout:'Hilfe',
     travelLog:'Log', stops:'Halte', today:'Heute', allTime:'Gesamt', min:'min',
+    timeTravelled:'Reisezeit', timeRested:'Ruhezeit',
     tripConfig:'Fahrtkonfiguration', work:'Arbeit (min)', break:'Pause (min)', longRest:'Lange Pause (min)',
     systemSettings:'Systemeinstellungen', mode:'Modus', notifications:'Benachrichtigungen', theme:'Thema', language:'Sprache',
     stationAnnouncements:'Bahnsteigansagen',
@@ -384,6 +389,7 @@ export const UI_STRINGS={
     start:'शुरू', stop:'रोकें', paused:'रुका हुआ', next:'अगला', resume:'जारी रखें', reset:'रीसेट',
     tabStats:'लॉग', tabTrip:'यात्रा', tabSettings:'सेटिंग्स', tabAbout:'मदद',
     travelLog:'लॉग', stops:'स्टॉप', today:'आज', allTime:'कुल', min:'मिनट',
+    timeTravelled:'यात्रा का समय', timeRested:'विश्राम का समय',
     tripConfig:'यात्रा कॉन्फ़िगरेशन', work:'काम (मिन)', break:'ब्रेक (मिन)', longRest:'लंबा ब्रेक (मिन)',
     systemSettings:'सिस्टम सेटिंग्स', mode:'मोड', notifications:'सूचनाएँ', theme:'थीम', language:'भाषा',
     stationAnnouncements:'स्टेशन की घोषणाएँ',
@@ -406,6 +412,7 @@ export const UI_STRINGS={
     start:'Démarrer', stop:'Pause', paused:'En pause', next:'Suivant', resume:'Reprendre', reset:'Réinitialiser',
     tabStats:'Journal', tabTrip:'Trajet', tabSettings:'Réglages', tabAbout:'Aide',
     travelLog:'Journal', stops:'Arrêts', today:'Aujourd’hui', allTime:'Total', min:'min',
+    timeTravelled:'Temps de voyage', timeRested:'Temps de repos',
     tripConfig:'Configuration du trajet', work:'Travail (min)', break:'Pause (min)', longRest:'Pause longue (min)',
     systemSettings:'Paramètres système', mode:'Mode', notifications:'Notifications', theme:'Thème', language:'Langue',
     stationAnnouncements:'Annonces en gare',
@@ -428,6 +435,7 @@ export const UI_STRINGS={
     start:'Starta', stop:'Pausa', paused:'Pausad', next:'Nästa', resume:'Fortsätt', reset:'Återställ',
     tabStats:'Logg', tabTrip:'Resa', tabSettings:'Val', tabAbout:'Hjälp',
     travelLog:'Logg', stops:'Stopp', today:'Idag', allTime:'Totalt', min:'min',
+    timeTravelled:'Restid', timeRested:'Vilotid',
     tripConfig:'Reseinställningar', work:'Arbete (min)', break:'Paus (min)', longRest:'Lång paus (min)',
     systemSettings:'Systeminställningar', mode:'Läge', notifications:'Notiser', theme:'Tema', language:'Språk',
     stationAnnouncements:'Stationsmeddelanden',
@@ -450,6 +458,7 @@ export const UI_STRINGS={
     start:'Iniciar', stop:'Pausar', paused:'Em pausa', next:'Próximo', resume:'Retomar', reset:'Reiniciar',
     tabStats:'Registro', tabTrip:'Viagem', tabSettings:'Ajustes', tabAbout:'Sobre',
     travelLog:'Registro', stops:'Paradas', today:'Hoje', allTime:'Total', min:'min',
+    timeTravelled:'Tempo de viagem', timeRested:'Tempo de descanso',
     tripConfig:'Configuração da viagem', work:'Trabalho (min)', break:'Pausa (min)', longRest:'Pausa longa (min)',
     systemSettings:'Configurações do sistema', mode:'Modo', notifications:'Notificações', theme:'Tema', language:'Idioma',
     stationAnnouncements:'Anúncios de estação',
@@ -472,6 +481,7 @@ export const UI_STRINGS={
     start:'开始', stop:'暂停', paused:'已暂停', next:'下一站', resume:'继续', reset:'重置',
     tabStats:'记录', tabTrip:'行程', tabSettings:'设置', tabAbout:'帮助',
     travelLog:'记录', stops:'停靠站', today:'今日', allTime:'累计', min:'分',
+    timeTravelled:'行程时间', timeRested:'休息时间',
     tripConfig:'行程设置', work:'工作 (分)', break:'休息 (分)', longRest:'长休息 (分)',
     systemSettings:'系统设置', mode:'模式', notifications:'通知', theme:'主题', language:'语言',
     stationAnnouncements:'车站广播',

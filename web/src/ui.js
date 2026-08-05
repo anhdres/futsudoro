@@ -87,11 +87,12 @@ export function applyUIText(){
   set('tabSettings', t('tabSettings'));
   set('tabAbout', t('tabAbout'));
   set('titleTravelLog', t('travelLog'));
-  set('labelStops', t('stops'));
   set('labelToday', t('today'));
   set('labelAllTime', t('allTime'));
-  set('labelMinA', t('min'));
-  set('labelMinB', t('min'));
+  set('labelTravelToday', t('timeTravelled'));
+  set('labelRestToday', t('timeRested'));
+  set('labelTravelAll', t('timeTravelled'));
+  set('labelRestAll', t('timeRested'));
   set('titleTripConfig', t('tripConfig'));
   set('labelStopsCfg', t('stops'));
   set('labelWork', t('work'));

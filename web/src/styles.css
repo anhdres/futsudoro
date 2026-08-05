@@ -138,7 +138,25 @@ body { background:#000; color:var(--black); font-family:'Noto Sans JP',sans-seri
 .panel-title { font-size:10px; font-weight:900; color:var(--gray); text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px; }
 .info-row { display:flex; justify-content:space-between; margin:6px 0; font-size:13px; font-weight:700; }
 .info-row span { color:var(--gray); font-weight:500; }
-.stops-value { display:inline-flex; align-items:center; gap:2px; letter-spacing:0; font-variant-numeric:tabular-nums; }
+/* Stats panel rework (Andrés 2026-08-05): section headers + progress bar. */
+.stats-section-header {
+  font-size:10px; font-weight:900; color:var(--gray);
+  text-transform:uppercase; letter-spacing:.12em;
+  margin:12px 0 2px;
+}
+.stats-section-header:first-child { margin-top:0; }
+.stats-progress {
+  display:flex; height:10px; margin:12px 0 4px;
+  border-radius:5px; overflow:hidden; background:var(--line);
+}
+.stats-progress-work {
+  background:var(--green); height:100%; width:100%;
+  transition:width .5s ease;
+}
+.stats-progress-rest {
+  background:var(--red); height:100%; width:0;
+  transition:width .5s ease;
+}
 .setting-row { display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
 .setting-row label { font-size:12px; font-weight:700; color:var(--gray); }
 .setting-row input { width:56px; padding:6px; border:2px solid var(--border); border-radius:6px; font-family:'Noto Sans JP',sans-serif; font-size:14px; font-weight:700; text-align:center; background:var(--white); color:var(--black); }
