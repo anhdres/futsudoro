@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20,300,0,0');
 * { margin:0; padding:0; box-sizing:border-box; }
 :root { --bg:#f0f0ec; --white:#fff; --black:#111; --gray:#666; --border:#111; --green:#00873c; --red:#c41e3a; --blue:#003f8a; --yellow:#e6a700; --line:#ddd; }
-body.dark { --bg:#0d0d14; --white:#1a1a24; --black:#e8e8e0; --gray:#a0a0a0; --border:#555; --green:#00cc7d; --red:#e85d75; --blue:#4dabf7; --yellow:#ffcc00; --line:#333; }
+body.dark { --bg:#000; --white:#000; --black:#e8e8e0; --gray:#a0a0a0; --border:#555; --green:#00cc7d; --red:#e85d75; --blue:#4dabf7; --yellow:#ffcc00; --line:#333; }
 body { background:#000; color:var(--black); font-family:'Noto Sans JP',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
 .sign-panel { width:100%; max-width:380px; background:var(--white); border:3px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:0 6px 0 rgba(0,0,0,.12); }
 
