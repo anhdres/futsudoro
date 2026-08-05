@@ -324,10 +324,10 @@ function computeRemainingTotalSeconds(){
     // longrest or unknown — no intermediate rests remaining.
     futureRestMins = 0;
   }
-  // Long rest at the end of the trip — fully consumed by timeLeft if we are
-  // already in longrest phase.
-  const longRestMins = (phase === 'longrest') ? 0 : (cfg.long || 0);
-  const futureSeconds = (futureWorkMins + futureRestMins + longRestMins) * 60;
+  // Arrival = train reaches terminal = end of last work phase.
+  // longrest is the break AFTER arrival, so it's not part of arrival time
+  // (matches `fmtTripDuration` semantics, which also excludes longrest).
+  const futureSeconds = (futureWorkMins + futureRestMins) * 60;
   return timeLeft + futureSeconds;
 }
 
@@ -343,8 +343,8 @@ export function fmtArrivalTime(){
     const secs = computeRemainingTotalSeconds();
     return fmtClockTime(new Date(Date.now() + secs * 1000));
   }
-  // Not started yet: arrival if I start now.
-  const totalMins = (cfg.work * cfg.journeys) + (cfg.rest * Math.max(0, cfg.journeys - 1)) + (cfg.long || 0);
+  // Not started yet: arrival if I start now (excludes longrest).
+  const totalMins = (cfg.work * cfg.journeys) + (cfg.rest * Math.max(0, cfg.journeys - 1));
   return fmtClockTime(new Date(Date.now() + totalMins * 60000));
 }
 
