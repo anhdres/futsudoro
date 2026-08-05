@@ -33,8 +33,8 @@
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
 export const VERSION = '0.6.2';
-export const BUILD = '808b1e3';
-export const BUILD_DATE = '2026-07-25';
+export const BUILD = 'de66cc5';
+export const BUILD_DATE = '2026-08-05';
 
 // Line configurations with JP + Latin station names
 export const LINES={
@@ -280,6 +280,7 @@ export const UI_STRINGS={
     notifOn:'ON', notifOff:'OFF',
     light:'ライト', dark:'ダーク',
     tripDuration:'終点までの所要時間: {duration}',
+    arrivalTime:'終点到着予定時刻: {time}',
     backupLabel:'エクスポート',
     importLabel:'Import',
     confirmSwitchLine:'路線を切り替えると進行中のセッションがリセットされます。よろしいですか？',
@@ -301,6 +302,7 @@ export const UI_STRINGS={
     notifOn:'ON', notifOff:'OFF',
     light:'Light', dark:'Dark',
     tripDuration:'Travel time to destination: {duration}',
+    arrivalTime:'Arrival at destination: {time}',
     backupLabel:'Export',
     importLabel:'Import',
     confirmSwitchLine:'Switching lines will reset the current session. Continue?',
@@ -322,6 +324,7 @@ export const UI_STRINGS={
     notifOn:'SI', notifOff:'NO',
     light:'Claro', dark:'Oscuro',
     tripDuration:'Tiempo de viaje al destino: {duration}',
+    arrivalTime:'Hora de llegada al destino: {time}',
     backupLabel:'Exportar',
     importLabel:'Importar',
     confirmSwitchLine:'Cambiar de línea reiniciará la sesión actual. ¿Continuar?',
@@ -343,6 +346,7 @@ export const UI_STRINGS={
     notifOn:'SI', notifOff:'NO',
     light:'Chiaro', dark:'Scuro',
     tripDuration:'Tempo di viaggio fino al capolinea: {duration}',
+    arrivalTime:'Orario di arrivo al capolinea: {time}',
     backupLabel:'Esporta',
     importLabel:'Importa',
     confirmSwitchLine:'Cambiare linea resetterà la sessione attuale. Continuare?',
@@ -364,6 +368,7 @@ export const UI_STRINGS={
     notifOn:'JA', notifOff:'NEIN',
     light:'Hell', dark:'Dunkel',
     tripDuration:'Fahrzeit bis zum Ziel: {duration}',
+    arrivalTime:'Ankunftszeit am Ziel: {time}',
     backupLabel:'Exportieren',
     importLabel:'Importieren',
     confirmSwitchLine:'Linie wechseln setzt die aktuelle Sitzung zurück. Fortfahren?',
@@ -385,6 +390,7 @@ export const UI_STRINGS={
     notifOn:'हाँ', notifOff:'नहीं',
     light:'लाइट', dark:'डार्क',
     tripDuration:'गंतव्य तक यात्रा समय: {duration}',
+    arrivalTime:'गंतव्य पर पहुँचने का समय: {time}',
     backupLabel:'निर्यात',
     importLabel:'आयात',
     confirmSwitchLine:'लाइन बदलने से वर्तमान सत्र रीसेट हो जाएगा। जारी रखें?',
@@ -406,6 +412,7 @@ export const UI_STRINGS={
     notifOn:'OUI', notifOff:'NON',
     light:'Clair', dark:'Sombre',
     tripDuration:'Temps de trajet jusqu’au terminus : {duration}',
+    arrivalTime:'Heure d’arrivée au terminus : {time}',
     backupLabel:'Exporter',
     importLabel:'Importer',
     confirmSwitchLine:'Changer de ligne réinitialisera la session en cours. Continuer ?',
@@ -427,6 +434,7 @@ export const UI_STRINGS={
     notifOn:'JA', notifOff:'NEJ',
     light:'Ljust', dark:'Mörkt',
     tripDuration:'Restid till slutstation: {duration}',
+    arrivalTime:'Ankomsttid till slutstation: {time}',
     backupLabel:'Exportera',
     importLabel:'Importera',
     confirmSwitchLine:'Att byta linje återställer den pågående sessionen. Fortsätt?',
@@ -448,6 +456,7 @@ export const UI_STRINGS={
     notifOn:'SIM', notifOff:'NÃO',
     light:'Claro', dark:'Escuro',
     tripDuration:'Tempo de viagem até o destino: {duration}',
+    arrivalTime:'Horário de chegada ao destino: {time}',
     backupLabel:'Exportar',
     importLabel:'Importar',
     confirmSwitchLine:'Mudar de linha vai reiniciar a sessão atual. Continuar?',
@@ -469,6 +478,7 @@ export const UI_STRINGS={
     notifOn:'开', notifOff:'关',
     light:'浅色', dark:'深色',
     tripDuration:'到终点站的行程时间: {duration}',
+    arrivalTime:'到达终点站的时间: {time}',
     backupLabel:'导出',
     importLabel:'导入',
     confirmSwitchLine:'切换线路将重置当前会话。是否继续？',

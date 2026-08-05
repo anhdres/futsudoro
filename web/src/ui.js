@@ -223,6 +223,8 @@ export function updDisplay(){
   timerEl.textContent = (timeMode === 'kairos' && overtime)
     ? fmtOvertime(overtimeSeconds)
     : fmt(timeLeft);
+  // Arrival time updates every tick (running) — cheap, just wall-clock math.
+  updArrivalTimeNote();
   if(phase === 'work'){
     const pct = totalProgCalc(cfg, timeLeft, currentJourney) * 100;
     tpEl.style.width = pct + '%';
@@ -292,6 +294,71 @@ export function fmtTripDuration(){
 export function updTripDurationNote(){
   const note = document.getElementById('tripDurationNote');
   if(note) note.textContent = t('tripDuration').replace('{duration}', fmtTripDuration());
+  // ETA must always be in sync with total duration, since total feeds ETA.
+  updArrivalTimeNote();
+}
+
+// Compute the wall-clock ETA at destination.
+// Running: now() + (currentPhaseRemaining + futurePhases) seconds.
+// Idle / not started: now() + totalToFinalRest minutes.
+// Paused (started): treats paused state as if resuming from now (simple v1).
+function computeRemainingTotalSeconds(){
+  // Pattern: W0 R0 W1 R1 W2 R2 W3 LR
+  // currentJourney = index of the current journey (0-indexed).
+  // journeysLeft = number of journeys whose work is not yet started.
+  const journeysLeft = Math.max(0, cfg.journeys - 1 - currentJourney);
+  // Future work minutes = full work for each future journey (current journey's
+  // work is partially consumed and reflected in timeLeft).
+  const futureWorkMins = journeysLeft * cfg.work;
+  // Future intermediate rests. Rests sit BETWEEN journeys, so there are
+  // (cfg.journeys - 1) intermediate rests in total. The current rest (if any)
+  // is being consumed via timeLeft, so we exclude it from the future count.
+  let futureRestMins;
+  if(phase === 'work'){
+    // Rests after current journey + after each future journey.
+    futureRestMins = journeysLeft * cfg.rest;
+  } else if(phase === 'rest'){
+    // Current rest is in timeLeft. Rests after future journeys only.
+    futureRestMins = Math.max(0, (journeysLeft - 1) * cfg.rest);
+  } else {
+    // longrest or unknown — no intermediate rests remaining.
+    futureRestMins = 0;
+  }
+  // Long rest at the end of the trip — fully consumed by timeLeft if we are
+  // already in longrest phase.
+  const longRestMins = (phase === 'longrest') ? 0 : (cfg.long || 0);
+  const futureSeconds = (futureWorkMins + futureRestMins + longRestMins) * 60;
+  return timeLeft + futureSeconds;
+}
+
+export function fmtArrivalTime(){
+  if(running){
+    const secs = computeRemainingTotalSeconds();
+    return fmtClockTime(new Date(Date.now() + secs * 1000));
+  }
+  if(hasStarted){
+    // Paused mid-trip: ETA frozen at pause time would require storing pausedAt.
+    // Simpler v1: recompute using current timeLeft as if starting from now,
+    // which matches user intent of "if I resume now, when do I arrive?".
+    const secs = computeRemainingTotalSeconds();
+    return fmtClockTime(new Date(Date.now() + secs * 1000));
+  }
+  // Not started yet: arrival if I start now.
+  const totalMins = (cfg.work * cfg.journeys) + (cfg.rest * Math.max(0, cfg.journeys - 1)) + (cfg.long || 0);
+  return fmtClockTime(new Date(Date.now() + totalMins * 60000));
+}
+
+export function updArrivalTimeNote(){
+  const note = document.getElementById('arrivalTimeNote');
+  if(!note) return;
+  note.textContent = t('arrivalTime').replace('{time}', fmtArrivalTime());
+}
+
+// Format a Date as HH:MM in the user's local timezone, 24h.
+function fmtClockTime(d){
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
 }
 
 export function refreshThemeButton(){
@@ -585,3 +652,10 @@ document.getElementById('langSelect').addEventListener('change', (e) => setLocal
 // Checker de rollover de stats (para que funcione si la pestaña queda
 // abierta cruzando medianoche).
 startRolloverChecker();
+
+// Idle ETA ticker: cuando el timer está parado pero la pestaña queda abierta,
+// la hora de llegada cambia con el reloj. Refrescar cada 30s es suficiente
+// para mantenerla razonable sin gastar cómputo.
+setInterval(() => {
+  if(!running) updArrivalTimeNote();
+}, 30000);
