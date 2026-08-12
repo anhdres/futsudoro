@@ -210,9 +210,23 @@ export function phaseTargetSeconds(){
 }
 
 // Used by kairos overtime "Next" press to credit accumulated time.
+// Crédito va al travelTimeSec (no a today/total) para que el "All Time"
+// del panel refleje el overtime también. addTravelTime ya actualiza
+// today/total internamente.
 export function addWorkFromPhase(){
   const totalSecs = (cfg.work * 60) + (overtime ? overtimeSeconds : 0);
-  addWork(Math.round(totalSecs / 60));
+  addTravelTime(totalSecs);
+}
+
+// Counterpart de addWorkFromPhase para rest/longrest: acredita el tiempo
+// parado en estación cuando el user sale de kairos overtime manualmente.
+// Crédito va al stationTimeSec (con todayStationTime) para mantener el
+// panel "Time rested" consistente — Andrés feedback 2026-08-12: el panel
+// debe contar "descanso final + todo el tiempo PARADO en una estación".
+export function addRestTimeFromPhase(){
+  const baseSec = phase === 'longrest' ? cfg.longRest * 60 : cfg.rest * 60;
+  const totalSecs = baseSec + (overtime ? overtimeSeconds : 0);
+  addStationTime(totalSecs);
 }
 
 export function enterOvertime(){
@@ -337,6 +351,7 @@ export function tick(){
     running = false;
     if(phase === 'work') addTravelTime(cfg.work * 60);
     else if(phase === 'rest') addStationTime(cfg.rest * 60);
+    else if(phase === 'longrest') addStationTime(cfg.longRest * 60);
     const shouldContinue = advancePhase();
     if(shouldContinue) startTimer();
     updDisplay();

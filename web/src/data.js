@@ -2,6 +2,18 @@
 // VERSION: semver, bumped manually on meaningful releases (e.g. 0.2.0 → 0.3.0).
 // BUILD:   git short SHA, auto-updated by scripts/bump-version.sh on every commit.
 // BUILD_DATE: ISO date of the commit, also auto-updated.
+// 0.6.3 — 2026-08-12: stats panel — longrest cuenta como station time.
+//                     - Bug fix: tick() solo acreditaba work/rest; longrest
+//                       (descanso final) nunca se sumaba → "Time rested"
+//                       quedaba corto. Ahora cuenta la duración completa.
+//                     - Bug fix: kairos work overtime acreditaba a today/total
+//                       pero no a travelTimeSec → "All Time" no reflejaba
+//                       el overtime. addWorkFromPhase usa addTravelTime.
+//                     - Nuevo addRestTimeFromPhase(): cuando user sale de
+//                       kairos overtime en rest/longrest, acredita base +
+//                       overtime como station time (antes se perdía).
+//                     - ui.js startBtn click → else branch llama el nuevo
+//                       helper para rest/longrest overtime.
 // 0.6.2 — 2026-07-25: kairos flow state — braille spinner in title.
 //                     - Replace time-based title with animated spinner +
 //                       localized "flowing" word when kairos preset is fulfilled.
@@ -32,9 +44,9 @@
 //                     zh: Chinese (Mandarin)_Soft_Girl → Wise_Women
 // 0.3.0 — 2026-07-21: PA station announcements (TTS + chime + i18n label),
 //                     timer robustness (timestamp-based), zh translation added.
-export const VERSION = '0.6.2';
-export const BUILD = '2834122';
-export const BUILD_DATE = '2026-08-05';
+export const VERSION = '0.6.3';
+export const BUILD = 'a44f5f1';
+export const BUILD_DATE = '2026-08-12';
 
 // Line configurations with JP + Latin station names
 export const LINES={

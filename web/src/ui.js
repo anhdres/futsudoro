@@ -20,7 +20,7 @@ import {
   hasStarted, overtime, overtimeSeconds, currentJourney, clockTicker,
   setCurrentLine, setTimeMode, setHasStarted, setTimeLeft, setPhase,
   setClockTicker, startTimer, pauseTimer, fullReset, applyCfg,
-  advancePhase, addWorkFromPhase, syncTitle
+  advancePhase, addWorkFromPhase, addRestTimeFromPhase, syncTitle
 } from './timer.js';
 
 // UI-owned state
@@ -610,6 +610,7 @@ document.getElementById('aboutBtn').addEventListener('click', () => togglePanel(
 startBtn.addEventListener('click', () => {
   if(timeMode === 'kairos' && overtime){
     if(phase === 'work') addWorkFromPhase();
+    else addRestTimeFromPhase();
     advancePhase();
     updDisplay();
     updBtns();
