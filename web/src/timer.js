@@ -80,6 +80,8 @@ let phaseStartedAt = Date.now();
 // overtimeStartedAt, no se acumula por tick. Si el browser pausea los
 // timers durante horas, al volver el overtime refleja el tiempo real.
 let overtimeStartedAt = Date.now();
+// Wall-clock interval spent paused must never count toward either phase.
+let pausedAt = null;
 function phaseDurationSec(){
   if(phase === 'work') return cfg.work * 60;
   if(phase === 'rest') return cfg.rest * 60;
@@ -365,13 +367,21 @@ export function tick(){
 
 export function startTimer(){
   if(running) return;
+  const now = Date.now();
+  if(pausedAt !== null){
+    const pausedMs = now - pausedAt;
+    phaseStartedAt += pausedMs;
+    overtimeStartedAt += pausedMs;
+    pausedAt = null;
+  } else {
+    // Fresh phase (or first start): anchors were set during the transition,
+    // but ticking should begin when the new phase actually starts.
+    phaseStartedAt = now;
+    overtimeStartedAt = now;
+  }
   running = true;
   ticker = setInterval(tick, 1000);
-  lastTickTime = Date.now();
-  // Reset del timestamp de fase para que recomputeTimeLeft calcule desde ahora.
-  // Importante cuando se llama después de un long background sin ticks.
-  phaseStartedAt = Date.now();
-  overtimeStartedAt = Date.now();
+  lastTickTime = now;
   // Wake Lock: pedir al OS que mantenga el thread activo (mobile).
   if(!document.hidden) requestWakeLock();
   updDisplay();
@@ -381,6 +391,10 @@ export function startTimer(){
 
 export function pauseTimer(){
   if(!running) return;
+  // Capture the exact visible remainder before freezing the phase clock.
+  if(timeMode === 'kairos' && overtime) recomputeOvertime();
+  else recomputeTimeLeft();
+  pausedAt = Date.now();
   running = false;
   clearInterval(ticker);
   releaseWakeLock();
@@ -401,6 +415,7 @@ export function fullReset(){
   currentJourney = 0;
   timeLeft = cfg.work * 60;
   phaseStartedAt = Date.now();
+  pausedAt = null;
   overtime = false;
   overtimeSeconds = 0;
   overtimeStartedAt = Date.now();
